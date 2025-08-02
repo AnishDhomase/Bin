@@ -1,8 +1,8 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 import Start from "./pages/Start";
 import Dashboard from "./pages/Dashboard";
-import Signup from "./pages/Signup";
 import Signin from "./pages/Signin";
+import Signup from "./pages/Signup";
 
 const router = createBrowserRouter([
   { path: "/", Component: Start },
