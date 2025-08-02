@@ -1,6 +1,8 @@
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import SignupSigninOutline from "../components/SignupSigninOutline";
+import { textFieldSx } from "../utils/MUICustomStyles";
+import { Link } from "react-router";
 
 const Signin = () => {
   async function handleFormSubmit(formData) {
@@ -11,15 +13,16 @@ const Signin = () => {
     console.log(userData);
   }
   return (
-    <SignupSigninOutline headline={"Sign In"}>
+    <SignupSigninOutline headline={"Welcome Back"}>
       <form
         action={handleFormSubmit}
-        style={{
-          padding: "20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "30px",
-        }}
+        className="p-5 flex flex-col gap-7"
+        // style={{
+        //   padding: "20px",
+        //   display: "flex",
+        //   flexDirection: "column",
+        //   gap: "30px",
+        // }}
       >
         <TextField
           name="email"
@@ -28,15 +31,7 @@ const Signin = () => {
           label="Email"
           variant="standard"
           placeholder="example@example.com"
-          sx={{
-            input: {
-              fontSize: "22px",
-              color: "#333",
-            },
-            label: {
-              fontSize: "20px",
-            },
-          }}
+          sx={textFieldSx}
         />
         <TextField
           name="password"
@@ -46,15 +41,7 @@ const Signin = () => {
           variant="standard"
           // type="password"
           placeholder="At least of length 6"
-          sx={{
-            input: {
-              fontSize: "22px",
-              color: "#333",
-            },
-            label: {
-              fontSize: "20px",
-            },
-          }}
+          sx={textFieldSx}
         />
         <Button
           type="submit"
@@ -65,16 +52,41 @@ const Signin = () => {
             fontSize: "18px",
             fontWeight: "500",
             color: "#ffffff",
-            backgroundColor: "#1976D2",
+            backgroundColor: "#4294FF",
             padding: "8px 20px",
             "&:hover": {
-              backgroundColor: "#0869d0",
+              backgroundColor: "#376CFB",
             },
           }}
         >
-          Sign In
+          Login
         </Button>
       </form>
+      <footer
+        className="px-5 text-white flex justify-center gap-1 -mt-2"
+        // style={{
+        //   padding: "0 20px",
+        //   color: "white",
+        //   display: "flex",
+        //   justifyContent: "center",
+        //   gap: "5px",
+        //   marginTop: "-10px",
+        // }}
+      >
+        Don't have an account?
+        <Link to="/auth/signup">
+          <button
+            // style={{
+            //   color: "#4294FF",
+            //   cursor: "pointer",
+            //   fontWeight: "500",
+            // }}
+            className="text-[#4294FF] cursor-pointer font-medium"
+          >
+            Signup
+          </button>
+        </Link>
+      </footer>
     </SignupSigninOutline>
   );
 };

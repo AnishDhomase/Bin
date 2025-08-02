@@ -7,6 +7,7 @@ const SquaresBg = ({ children }) => {
         width: "100vw",
         height: "100vh",
         position: "relative",
+        backgroundColor: "#000000",
       }}
     >
       <div
@@ -24,8 +25,8 @@ const SquaresBg = ({ children }) => {
         speed={0.7}
         squareSize={100}
         direction="right" // up, down, left, right, diagonal
-        borderColor="#f5f2f2"
-        hoverFillColor="#fbf7f7"
+        borderColor="#181818"
+        hoverFillColor="#121212"
       />
     </div>
   );
