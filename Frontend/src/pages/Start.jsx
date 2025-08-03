@@ -15,14 +15,17 @@ const Start = () => {
   return (
     <>
       <GlitchBg>
-        <div style={{ width: "100vw", height: "100vh", padding: "0 5vw" }}>
+        <div style={{ width: "100vw", height: "100vh", padding: "15px 5vw" }}>
           <nav
             style={{
               width: "100%",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              padding: "20px 0",
+              padding: "10px 40px",
+              backgroundColor: "#ffffff3d",
+              borderRadius: "50px",
+
               // border: "1px solid gray",
             }}
           >
@@ -126,7 +129,7 @@ const Start = () => {
             justifyContent: "center",
           }}
         >
-          <Cubes
+          {/* <Cubes
             gridSize={12}
             maxAngle={90}
             radius={2}
@@ -181,14 +184,15 @@ const Start = () => {
                 />
               </div>
             </div>
-          </div>
-        </div>
+          </div> */}
+c        </div>
       </GlitchBg>
 
       <div
         style={{
           color: "white",
           backgroundColor: "black",
+          height: "200px",
         }}
       >
         Footer

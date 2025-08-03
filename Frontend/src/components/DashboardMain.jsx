@@ -1,0 +1,225 @@
+import { useEffect, useState } from "react";
+import Button from "@mui/material/Button";
+import FileFolder from "../components/FileFolder";
+import Search from "../components/Search";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import AddIcon from "@mui/icons-material/Add";
+import LinearProgress from "@mui/material/LinearProgress";
+import Breadcrumb from "./Breadcrumb";
+import { DndContext } from "@dnd-kit/core";
+const filesData = [
+  {
+    id: "1",
+    name: "Documents",
+    parentId: null,
+    isFolder: true,
+  },
+  {
+    id: "2",
+    name: "Work",
+    parentId: "1",
+    isFolder: true,
+  },
+  {
+    id: "3",
+    name: "Projects",
+    parentId: "1",
+    isFolder: true,
+  },
+  {
+    id: "4",
+    name: "Resume",
+    parentId: "2",
+    isFolder: true,
+  },
+  {
+    id: "5",
+    name: "myresume.pdf",
+    ext: "pdf",
+    parentId: "4",
+    isFolder: false,
+  },
+  {
+    id: "6",
+    name: "Photos",
+    parentId: "1",
+    isFolder: true,
+  },
+  {
+    id: "7",
+    name: "Summer Vacation",
+    parentId: "6",
+    isFolder: true,
+  },
+  {
+    id: "8",
+    name: "beach.jpg",
+    ext: "jpg",
+    parentId: "7",
+    isFolder: false,
+  },
+  {
+    id: "9",
+    name: "mountains.jpg",
+    ext: "jpg",
+    parentId: "7",
+    isFolder: false,
+  },
+  {
+    id: "10",
+    name: "2025",
+    parentId: "6",
+    isFolder: true,
+  },
+  {
+    id: "11",
+    name: "logo",
+    ext: "png",
+    parentId: null,
+    isFolder: false,
+  },
+  {
+    id: "12",
+    name: "todo",
+    ext: "txt",
+    parentId: 1,
+    isFolder: false,
+  },
+];
+const fileType = ["Image", "Document", "Other", "Video"];
+const extType = [
+  { ext: "jpg", type: "Image", size: "1.25 GB" },
+  { ext: "png", type: "Image", size: "1.2 GB" },
+  { ext: "pdf", type: "Document", size: "1.5 GB" },
+  { ext: "txt", type: "Other", size: "45 MB" },
+  { ext: "mp4", type: "Video", size: "45 MB" },
+];
+
+const DashboardMain = () => {
+  const [directory, setDirectory] = useState([]);
+  const [allDBFiles, setAllDBFiles] = useState(filesData);
+  const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+      setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      setFiles(() =>
+        allDBFiles.filter(
+          (file) =>
+            file.parentId ==
+            (directory.length === 0 ? null : directory.at(-1)?.id)
+        )
+      );
+      setLoading(false);
+    };
+
+    fetchFiles();
+  }, [directory, allDBFiles]);
+
+  function handleDragEnd(event) {
+    const { active, over } = event;
+    console.log({ active, over });
+
+    if (!over) return;
+
+    const draggingfileFolderId = active.id;
+    const droppingFolderId = over.id;
+    if (draggingfileFolderId === droppingFolderId) return;
+
+    setAllDBFiles((files) =>
+      files.map((file) =>
+        file.id === draggingfileFolderId
+          ? {
+              ...file,
+              parentId: droppingFolderId,
+            }
+          : file
+      )
+    );
+  }
+  console.log(files);
+
+  return (
+    <main className="bg-[#1c2331] w-4/5 p-8">
+      <header className=" w-5/6 mx-auto mb-5">
+        <h1 className="text-white text-xl">Storage overview</h1>
+        <main className="h-[250px] bg-gray-900"></main>
+      </header>
+      <main className="w-5/6 mx-auto bg-gray-800 py-10 rounded-xl">
+        <div className="flex flex-col">
+          <section className="flex justify-between content-center gap-2 w-3/4 mx-auto">
+            <Search />
+            <span className="flex gap-1.5">
+              <Button
+                variant="outlined"
+                startIcon={
+                  <CloudUploadIcon
+                    sx={{ fontSize: "35px !important" }}
+                    color="inherit"
+                  />
+                }
+                sx={{
+                  textTransform: "capitalize",
+                  display: "flex",
+                  justifyContent: "start",
+                  fontSize: "16px",
+                  color: "white",
+                  padding: "8px 15px",
+                  border: "2px solid #ffffff1a",
+                }}
+              >
+                Upload
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={
+                  <AddIcon
+                    sx={{ fontSize: "35px !important" }}
+                    color="inherit"
+                  />
+                }
+                sx={{
+                  textTransform: "capitalize",
+                  display: "flex",
+                  justifyContent: "start",
+                  fontSize: "16px",
+                  color: "white",
+                  padding: "10px 20px",
+                  border: "2px solid #ffffff1a",
+                }}
+              >
+                Create
+              </Button>
+            </span>
+          </section>
+          <header className="text-white text-2xl font-semibold w-3/4 mx-auto mt-10">
+            <h1 className=" bg-gray-900 px-4 py-1 rounded-md flex gap-1 text-gray-400">
+              <Breadcrumb directory={directory} setDirectory={setDirectory} />
+            </h1>
+          </header>
+          {loading && (
+            <div className="w-3/4 mx-auto mt-4">
+              <LinearProgress />
+            </div>
+          )}
+
+          <ul className="flex flex-col gap-2 w-3/4 bg-gray-800 mx-auto mt-4">
+            <DndContext onDragEnd={handleDragEnd}>
+              {files.map((file) => (
+                <FileFolder
+                  key={file.id}
+                  file={file}
+                  setDirectory={setDirectory}
+                />
+              ))}
+            </DndContext>
+          </ul>
+        </div>
+      </main>
+    </main>
+  );
+};
+
+export default DashboardMain;

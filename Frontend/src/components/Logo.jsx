@@ -1,15 +1,14 @@
 import React from "react";
 
-const Logo = ({ noMargin = false }) => {
+const Logo = ({ noMargin = false, size = "55" }) => {
   return (
     <img
       src="/images/BinLogo.png"
       alt="Description"
       className={`h-[55px] ${noMargin ? "" : "my-0 mx-auto"}`}
-      //   style={{
-      //     height: "55px",
-      //     margin: noMargin ? "0" : "0 auto",
-      //   }}
+      style={{
+        height: `${size}px`,
+      }}
     />
   );
 };
