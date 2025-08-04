@@ -9,6 +9,7 @@ import { DndContext } from "@dnd-kit/core";
 import MyModal from "./MyModal";
 import FolderSearch from "./FolderSearch";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
+import FileUpload from "./FileUpload";
 const filesData = [
   {
     id: "1",
@@ -201,7 +202,27 @@ const DashboardMain = () => {
                   </Button>
                 }
               >
-                Upload File Modal content
+                {/* <FileFolderLogo isFolder={false} /> */}
+                <h1 className="text-[#376CFB] font-semibold text-3xl text-center mt-1">
+                  Upload File
+                </h1>
+                <div className="text-center space-y-2 my-7">
+                  <p className="text-gray-300 text-base">
+                    Allowed types:{" "}
+                    <span className="font-medium text-white">Images</span> (jpg,
+                    png, gif, bmp),
+                    <span className="font-medium text-white">
+                      {" "}
+                      Documents
+                    </span>{" "}
+                    (pdf, doc, docx, txt).
+                  </p>
+                  <p className="text-gray-300 text-base">
+                    Max file size:{" "}
+                    <span className="font-medium text-white">2MB</span>
+                  </p>
+                </div>
+                <FileUpload />
               </MyModal>
 
               <MyModal
