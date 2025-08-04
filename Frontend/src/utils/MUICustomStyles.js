@@ -16,6 +16,9 @@ export const textFieldSx = {
   "& .MuiInput-underline:hover:before": {
     borderBottomColor: "#4294FF",
   },
+  "& .MuiInput-underline:hover": {
+    borderBottomColor: "#4294FF",
+  },
   "& .MuiInput-underline:after": {
     borderBottomColor: "#4294FF",
   },

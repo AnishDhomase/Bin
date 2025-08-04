@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* Hide scrollbar */
 html,
 body {
   overflow-x: hidden;
@@ -23,4 +24,29 @@ body {
 body::-webkit-scrollbar {
   width: 0px;
   background: transparent; /* Optional: Just in case */
+}
+
+/* Custom Scrollbar Styling */
+.custom-scrollbar {
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #4b5563 transparent; /* Thumb and Track colors */
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #4b5563; /* Tailwind's gray-600 */
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #6b7280; /* Tailwind's gray-500 on hover */
 }

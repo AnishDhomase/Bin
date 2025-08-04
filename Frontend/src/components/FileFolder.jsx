@@ -1,13 +1,13 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import React, { useRef } from "react";
 
-const FileFolderLogo = ({ isFolder }) => {
+export const FileFolderLogo = ({ isFolder }) => {
   return (
     <span className="min-w-[70px] flex justify-center">
       <img
         className="h-[60px]"
-        src={isFolder ? "images/folderIcon.png" : "images/fileIcon.png"}
-        alt=""
+        src={isFolder ? "/images/folderIcon.png" : "/images/fileIcon.png"}
+        alt="fileFolder"
       />
     </span>
   );

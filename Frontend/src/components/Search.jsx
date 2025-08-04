@@ -24,6 +24,7 @@ export default function Search() {
         <SearchIcon />
       </IconButton>
       <InputBase
+        autoFocus
         sx={{ ml: 1, flex: 1, fontSize: "18px", color: "white" }}
         placeholder="Search here"
         inputProps={{ "aria-label": "search here" }}

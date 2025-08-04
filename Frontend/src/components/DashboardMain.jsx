@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "@mui/material/Button";
-import FileFolder from "../components/FileFolder";
+import FileFolder, { FileFolderLogo } from "../components/FileFolder";
 import Search from "../components/Search";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import AddIcon from "@mui/icons-material/Add";
 import LinearProgress from "@mui/material/LinearProgress";
 import Breadcrumb from "./Breadcrumb";
 import { DndContext } from "@dnd-kit/core";
+import MyModal from "./MyModal";
+import FolderSearch from "./FolderSearch";
+import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 const filesData = [
   {
     id: "1",
@@ -128,6 +130,25 @@ const DashboardMain = () => {
     const droppingFolderId = over.id;
     if (draggingfileFolderId === droppingFolderId) return;
 
+    // Check for droppingFolder folder/file already contains draggingfileFolder
+    const draggingItem = allDBFiles.find(
+      (item) => item.id === draggingfileFolderId
+    );
+    const itemsInDroppingFolder = allDBFiles.filter(
+      (item) =>
+        item.parentId === droppingFolderId &&
+        item.isFolder === draggingItem.isFolder
+    );
+    const isItemAlreadyExistInDroppingFolder = itemsInDroppingFolder.some(
+      (item) => item.name === draggingItem.name
+    );
+    if (isItemAlreadyExistInDroppingFolder)
+      return alert(
+        `Can't move "${draggingItem.name}" ${
+          draggingItem.isFolder ? "Folder" : "File"
+        } because such file already exist in it.`
+      );
+
     setAllDBFiles((files) =>
       files.map((file) =>
         file.id === draggingfileFolderId
@@ -139,7 +160,10 @@ const DashboardMain = () => {
       )
     );
   }
-  console.log(files);
+
+  function handleNewFolderAddition(newFolder) {
+    setAllDBFiles((allDBFiles) => [...allDBFiles, newFolder]);
+  }
 
   return (
     <main className="bg-[#1c2331] w-4/5 p-8">
@@ -152,53 +176,82 @@ const DashboardMain = () => {
           <section className="flex justify-between content-center gap-2 w-3/4 mx-auto">
             <Search />
             <span className="flex gap-1.5">
-              <Button
-                variant="outlined"
-                startIcon={
-                  <CloudUploadIcon
-                    sx={{ fontSize: "35px !important" }}
-                    color="inherit"
-                  />
+              <MyModal
+                btn={
+                  <Button
+                    variant="outlined"
+                    startIcon={
+                      <CloudUploadOutlinedIcon
+                        sx={{ fontSize: "35px !important" }}
+                        color="inherit"
+                      />
+                    }
+                    sx={{
+                      textTransform: "capitalize",
+                      display: "flex",
+                      justifyContent: "start",
+                      fontSize: "16px",
+                      color: "white",
+                      padding: "8px 15px",
+                      border: "2px solid #ffffff1a",
+                      height: "100%",
+                    }}
+                  >
+                    Upload
+                  </Button>
                 }
-                sx={{
-                  textTransform: "capitalize",
-                  display: "flex",
-                  justifyContent: "start",
-                  fontSize: "16px",
-                  color: "white",
-                  padding: "8px 15px",
-                  border: "2px solid #ffffff1a",
-                }}
               >
-                Upload
-              </Button>
-              <Button
-                variant="outlined"
-                startIcon={
-                  <AddIcon
-                    sx={{ fontSize: "35px !important" }}
-                    color="inherit"
-                  />
+                Upload File Modal content
+              </MyModal>
+
+              <MyModal
+                btn={
+                  <Button
+                    variant="outlined"
+                    startIcon={
+                      <AddIcon
+                        sx={{ fontSize: "35px !important" }}
+                        color="inherit"
+                      />
+                    }
+                    sx={{
+                      textTransform: "capitalize",
+                      display: "flex",
+                      justifyContent: "start",
+                      fontSize: "16px",
+                      color: "white",
+                      padding: "10px 20px",
+                      border: "2px solid #ffffff1a",
+                      height: "100%",
+                    }}
+                  >
+                    Create
+                  </Button>
                 }
-                sx={{
-                  textTransform: "capitalize",
-                  display: "flex",
-                  justifyContent: "start",
-                  fontSize: "16px",
-                  color: "white",
-                  padding: "10px 20px",
-                  border: "2px solid #ffffff1a",
-                }}
               >
-                Create
-              </Button>
+                <FileFolderLogo isFolder={true} />
+                <h1 className="text-white font-semibold text-3xl text-center mt-1">
+                  Create Folder
+                </h1>
+                <FolderSearch
+                  filesFoldersInCurrDir={files}
+                  directory={directory}
+                  handleNewFolderAddition={handleNewFolderAddition}
+                />
+              </MyModal>
             </span>
           </section>
           <header className="text-white text-2xl font-semibold w-3/4 mx-auto mt-10">
-            <h1 className=" bg-gray-900 px-4 py-1 rounded-md flex gap-1 text-gray-400">
+            <div
+              className="bg-gray-900 px-4 py-1 rounded-md flex gap-1 text-gray-400 overflow-x-auto whitespace-nowrap custom-scrollbar items-center"
+              onWheel={(e) => {
+                e.currentTarget.scrollLeft += e.deltaY;
+              }}
+            >
               <Breadcrumb directory={directory} setDirectory={setDirectory} />
-            </h1>
+            </div>
           </header>
+
           {loading && (
             <div className="w-3/4 mx-auto mt-4">
               <LinearProgress />

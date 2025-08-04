@@ -3,71 +3,79 @@ import Button from "@mui/material/Button";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import GradeOutlinedIcon from "@mui/icons-material/GradeOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import { Link, NavLink, useParams } from "react-router";
 
 const DashboardNav = () => {
+  const { username } = useParams();
   return (
     <nav className="sticky top-0 h-screen bg-gray-900 w-1/5 p-8 flex flex-col min-h-screen justify-between">
       <div>
-        <header className="pb-5">
-          <span
-            style={{
-              display: "flex",
-              justifyContent: "start",
-              alignItems: "center",
-              gap: "10px",
-            }}
-          >
-            <Logo noMargin={true} size={40} />
+        <NavLink to={`/dashboard/${username}`}>
+          <header className="pb-5">
             <span
               style={{
-                color: "#ffffff",
-                fontSize: "20px",
-                fontWeight: "500",
+                display: "flex",
+                justifyContent: "start",
+                alignItems: "center",
+                gap: "10px",
               }}
             >
-              Bin
+              <Logo noMargin={true} size={40} />
+              <span
+                style={{
+                  color: "#ffffff",
+                  fontSize: "20px",
+                  fontWeight: "500",
+                }}
+              >
+                Bin
+              </span>
             </span>
-          </span>
-        </header>
+          </header>
+        </NavLink>
         <main className="border-t-2 border-gray-700">
           <h1 className="text-gray-400 pt-5 pb-1 text-md">File Manager</h1>
           <section className="flex flex-col pl-3">
-            <Button
-              variant="text"
-              startIcon={
-                <GradeOutlinedIcon
-                  sx={{ fontSize: "25px !important" }}
-                  color="inherit"
-                />
-              }
-              sx={{
-                textTransform: "capitalize",
-                display: "flex",
-                justifyContent: "start",
-                fontSize: "18px",
-                color: "white",
-              }}
-            >
-              Favourites
-            </Button>
-            <Button
-              variant="text"
-              startIcon={
-                <DeleteOutlinedIcon
-                  sx={{ fontSize: "25px !important" }}
-                  color="inherit"
-                />
-              }
-              sx={{
-                textTransform: "capitalize",
-                display: "flex",
-                justifyContent: "start",
-                fontSize: "18px",
-                color: "white",
-              }}
-            >
-              Trash
-            </Button>
+            <NavLink to="favourites">
+              <Button
+                variant="text"
+                startIcon={
+                  <GradeOutlinedIcon
+                    sx={{ fontSize: "25px !important" }}
+                    color="inherit"
+                  />
+                }
+                sx={{
+                  textTransform: "capitalize",
+                  display: "flex",
+                  justifyContent: "start",
+                  fontSize: "18px",
+                  color: "white",
+                }}
+              >
+                Favourites
+              </Button>
+            </NavLink>
+            <NavLink to="trash">
+              <Button
+                variant="text"
+                startIcon={
+                  <DeleteOutlinedIcon
+                    sx={{ fontSize: "25px !important" }}
+                    color="inherit"
+                  />
+                }
+                sx={{
+                  textTransform: "capitalize",
+                  display: "flex",
+                  justifyContent: "start",
+                  fontSize: "18px",
+                  color: "white",
+                }}
+              >
+                Trash
+              </Button>
+            </NavLink>
           </section>
         </main>
       </div>

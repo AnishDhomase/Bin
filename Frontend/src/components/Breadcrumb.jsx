@@ -4,17 +4,17 @@ const Breadcrumb = ({ directory, setDirectory }) => {
   return (
     <>
       {
-        <h1
+        <div
           className={`${len === 0 && "text-white"}  ${
             len !== 0 && "hover:text-[#4294FF] cursor-pointer"
-          }`}
+          } `}
           onClick={() => {
             if (len === 0) return;
             setDirectory([]);
           }}
         >
           /
-        </h1>
+        </div>
       }
       {directory?.map((dir, ind) => (
         <span className="flex gap-1">
@@ -29,11 +29,17 @@ const Breadcrumb = ({ directory, setDirectory }) => {
           >
             {dir.name}
           </button>
-          <h1 className={`${ind === len - 1 && "text-white"}`}>/</h1>
+          <div className={`${ind === len - 1 && "text-white"}`}>/</div>
         </span>
       ))}
     </>
   );
+};
+
+export const getBreadcrumbPath = (directory) => {
+  if (!directory || directory.length === 0) return "/";
+  const path = directory.map((dir) => dir.name).join("/");
+  return `/${path}`;
 };
 
 export default Breadcrumb;
