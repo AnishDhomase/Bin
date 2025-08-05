@@ -128,6 +128,8 @@ const DashboardMain = () => {
   const [allDBFiles, setAllDBFiles] = useState(filesData);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [searchedForFiles, setSearchedForFiles] = useState([]);
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -191,6 +193,24 @@ const DashboardMain = () => {
     setAllDBFiles((allDBFiles) => [...allDBFiles, newFolder]);
   }
 
+  function toggleStar(fileFolder) {
+    setAllDBFiles((allDBFiles) =>
+      allDBFiles.map((item) =>
+        item.id !== fileFolder.id
+          ? item
+          : { ...item, isStarred: !item.isStarred }
+      )
+    );
+  }
+
+  function toggleTrash(fileFolder) {
+    setAllDBFiles((allDBFiles) =>
+      allDBFiles.map((item) =>
+        item.id !== fileFolder.id ? item : { ...item, isTrash: !item.isTrash }
+      )
+    );
+  }
+
   return (
     <main className="bg-[#1c2331] w-4/5 p-8">
       <header className=" w-5/6 mx-auto mb-5">
@@ -200,7 +220,12 @@ const DashboardMain = () => {
       <main className="w-5/6 mx-auto bg-gray-800 py-10 rounded-xl">
         <div className="flex flex-col">
           <section className="flex justify-between content-center gap-2 w-3/4 mx-auto">
-            <Search />
+            <Search
+              files={files}
+              setSearchedForFiles={setSearchedForFiles}
+              searchText={searchText}
+              setSearchText={setSearchText}
+            />
             <span className="flex gap-1.5">
               <MyModal
                 btn={
@@ -249,7 +274,6 @@ const DashboardMain = () => {
                 </div>
                 <FileUpload />
               </MyModal>
-
               <MyModal
                 btn={
                   <Button
@@ -304,17 +328,38 @@ const DashboardMain = () => {
             </div>
           )}
 
-          <ul className="flex flex-col gap-2 w-3/4 bg-gray-800 mx-auto mt-4">
-            <DndContext onDragEnd={handleDragEnd}>
-              {files.map((file) => (
+          {searchText.length === 0 && (
+            <ul className="flex flex-col gap-2 w-3/4 bg-gray-800 mx-auto mt-4">
+              <DndContext onDragEnd={handleDragEnd}>
+                {files.map((file) => (
+                  <FileFolder
+                    key={file.id}
+                    file={file}
+                    setDirectory={setDirectory}
+                    toggleStar={toggleStar}
+                    toggleTrash={toggleTrash}
+                    searchText={searchText}
+                    setSearchText={setSearchText}
+                  />
+                ))}
+              </DndContext>
+            </ul>
+          )}
+          {searchText.length !== 0 && (
+            <ul className="flex flex-col gap-2 w-3/4 bg-gray-800 mx-auto mt-4">
+              {searchedForFiles.map((file) => (
                 <FileFolder
                   key={file.id}
                   file={file}
                   setDirectory={setDirectory}
+                  toggleStar={toggleStar}
+                  toggleTrash={toggleTrash}
+                  searchText={searchText}
+                  setSearchText={setSearchText}
                 />
               ))}
-            </DndContext>
-          </ul>
+            </ul>
+          )}
         </div>
       </main>
     </main>
