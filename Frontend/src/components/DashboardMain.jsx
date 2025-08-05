@@ -76,14 +76,14 @@ const filesData = [
   },
   {
     id: "11",
-    name: "logo",
+    name: "logo.png",
     ext: "png",
     parentId: null,
     isFolder: false,
   },
   {
     id: "12",
-    name: "todo",
+    name: "todo.txt",
     ext: "txt",
     parentId: 1,
     isFolder: false,
