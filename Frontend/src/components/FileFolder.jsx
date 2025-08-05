@@ -1,5 +1,8 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import React, { useRef } from "react";
+import StarBorderOutlinedIcon from "@mui/icons-material/StarBorderOutlined";
+import IconButton from "@mui/material/IconButton";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 
 export const FileFolderLogo = ({ isFolder, height = 60 }) => {
   return (
@@ -72,12 +75,56 @@ const FileFolder = ({ file, setDirectory }) => {
       {...listeners}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
-      className="flex items-center text-white gap-2 bg-gray-900 justify-between p-3 rounded-xl cursor-pointer hover:bg-[#1018289a] active:bg-[#66ff7011]"
+      className="group flex items-center text-white gap-2 bg-gray-900 justify-between p-3 rounded-xl cursor-pointer hover:bg-[#1018289a]" //active:bg-[#66ff7011]
     >
-      <span className="flex items-center text-white gap-2 w-[400px]">
+      <span className="relative flex items-center text-white gap-2 w-[400px]">
         <FileFolderLogo isFolder={file.isFolder} />
         {truncateBaseName(file.name, 25)}
+        {/* Icons only visible on hover */}
+        <div
+          className="hidden group-hover:flex items-center gap-1 pointer-events-none group-hover:pointer-events-auto absolute right-2"
+          data-no-dnd="true"
+        >
+          <IconButton
+            data-no-dnd="true"
+            onPointerDown={(e) => e.preventDefault()}
+            size="small"
+            sx={{
+              color: "white",
+              transition: "transform 200ms ease-in-out",
+              "&:hover": {
+                color: "#FFD700",
+              },
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              console.log("clicked");
+            }}
+          >
+            <StarBorderOutlinedIcon fontSize="small" />
+          </IconButton>
+
+          <IconButton
+            data-no-dnd="true"
+            onPointerDown={(e) => e.preventDefault()}
+            size="small"
+            sx={{
+              color: "white",
+              transition: "transform 200ms ease-in-out",
+              "&:hover": {
+                color: "#d43b3b",
+              },
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              console.log("clicked");
+            }}
+          >
+            <DeleteOutlinedIcon fontSize="small" />
+          </IconButton>
+        </div>
       </span>
+
       <span className="flex items-center text-white gap-2">
         02/07/2003 - 17:15
       </span>
