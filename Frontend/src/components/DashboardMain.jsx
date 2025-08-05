@@ -214,8 +214,11 @@ const DashboardMain = () => {
   return (
     <main className="bg-[#1c2331] w-4/5 p-8">
       <header className=" w-5/6 mx-auto mb-5">
-        <h1 className="text-white text-xl">Storage overview</h1>
-        <main className="h-[250px] bg-gray-900"></main>
+        <main className="h-[250px] bg-gray-900 rounded-xl p-5">
+          <h1 className="text-white text-xl">
+            Storage overview will be implemented here soon ...
+          </h1>
+        </main>
       </header>
       <main className="w-5/6 mx-auto bg-gray-800 py-10 rounded-xl">
         <div className="flex flex-col">
