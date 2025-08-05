@@ -3,7 +3,6 @@ import React, { useRef } from "react";
 import StarBorderOutlinedIcon from "@mui/icons-material/StarBorderOutlined";
 import IconButton from "@mui/material/IconButton";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-
 export const FileFolderLogo = ({ isFolder, height = 60 }) => {
   return (
     <span className="min-w-[70px] flex justify-center">
@@ -18,7 +17,14 @@ export const FileFolderLogo = ({ isFolder, height = 60 }) => {
   );
 };
 
-const FileFolder = ({ file, setDirectory }) => {
+const FileFolder = ({
+  file,
+  setDirectory,
+  toggleStar,
+  toggleTrash,
+  searchText = "",
+  setSearchText,
+}) => {
   const { setNodeRef: setDropRef } = useDroppable({
     id: file.id,
   });
@@ -55,6 +61,7 @@ const FileFolder = ({ file, setDirectory }) => {
     if (dx < dragThreshold && dy < dragThreshold) {
       // Considered as a click
       if (file.isFolder) {
+        setSearchText("");
         setDirectory((directory) => [...directory, file]);
       }
     }
@@ -67,6 +74,8 @@ const FileFolder = ({ file, setDirectory }) => {
     setDragRef(node);
   };
 
+  if (file.isTrash) return;
+
   return (
     <li
       ref={combinedRef}
@@ -77,9 +86,13 @@ const FileFolder = ({ file, setDirectory }) => {
       onMouseUp={handleMouseUp}
       className="group flex items-center text-white gap-2 bg-gray-900 justify-between p-3 rounded-xl cursor-pointer hover:bg-[#1018289a]" //active:bg-[#66ff7011]
     >
-      <span className="relative flex items-center text-white gap-2 w-[400px]">
+      <span className="relative flex items-center text-white w-[400px] gap-2">
         <FileFolderLogo isFolder={file.isFolder} />
-        {truncateBaseName(file.name, 25)}
+        <span>
+          {searchText?.length === 0 && truncateBaseName(file.name, 25)}
+          {searchText?.length !== 0 && highlightText(file.name, searchText)}
+        </span>
+
         {/* Icons only visible on hover */}
         <div
           className="hidden group-hover:flex items-center gap-1 pointer-events-none group-hover:pointer-events-auto absolute right-2"
@@ -98,10 +111,15 @@ const FileFolder = ({ file, setDirectory }) => {
             }}
             onClick={(e) => {
               e.stopPropagation();
+              toggleStar(file);
               console.log("clicked");
             }}
           >
-            <StarBorderOutlinedIcon fontSize="small" />
+            {!file.isStarred ? (
+              <i className="ri-star-line text-gold text-2xl"></i>
+            ) : (
+              <i className="ri-star-fill text-gold text-2xl"></i>
+            )}
           </IconButton>
 
           <IconButton
@@ -117,10 +135,11 @@ const FileFolder = ({ file, setDirectory }) => {
             }}
             onClick={(e) => {
               e.stopPropagation();
+              toggleTrash(file);
               console.log("clicked");
             }}
           >
-            <DeleteOutlinedIcon fontSize="small" />
+            <i className="ri-delete-bin-line text-gold text-2xl"></i>
           </IconButton>
         </div>
       </span>
@@ -147,4 +166,24 @@ function truncateBaseName(fullName, maxBaseLen) {
 
   const truncated = base.slice(0, maxBaseLen) + "..." + ext;
   return truncated;
+}
+
+function highlightText(text, query) {
+  if (!query) return text;
+
+  const regex = new RegExp(
+    `(${query.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")})`,
+    "ig"
+  );
+  const parts = text.split(regex);
+
+  return parts.map((part, index) =>
+    regex.test(part) ? (
+      <mark key={index} className="bg-yellow-300 text-black">
+        {part}
+      </mark>
+    ) : (
+      <React.Fragment key={index}>{part}</React.Fragment>
+    )
+  );
 }

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "remixicon/fonts/remixicon.css";
 
 /* Hide scrollbar */
 html,
