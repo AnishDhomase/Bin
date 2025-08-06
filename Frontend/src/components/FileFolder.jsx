@@ -1,8 +1,7 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import React, { useRef } from "react";
-import StarBorderOutlinedIcon from "@mui/icons-material/StarBorderOutlined";
 import IconButton from "@mui/material/IconButton";
-import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import { truncateBaseName } from "../utils/truncateName";
 export const FileFolderLogo = ({ isFolder, height = 60 }) => {
   return (
     <span className="min-w-[70px] flex justify-center">
@@ -153,20 +152,6 @@ const FileFolder = ({
 };
 
 export default FileFolder;
-
-export function truncateBaseName(fullName, maxBaseLen) {
-  const dot = fullName.lastIndexOf(".");
-  const hasExt = dot > 0 && dot < fullName.length - 1;
-  const base = hasExt ? fullName.slice(0, dot) : fullName;
-  const ext = hasExt ? fullName.slice(dot) : "";
-
-  if (base.length <= maxBaseLen) {
-    return fullName;
-  }
-
-  const truncated = base.slice(0, maxBaseLen) + "..." + ext;
-  return truncated;
-}
 
 function highlightText(text, query) {
   if (!query) return text;

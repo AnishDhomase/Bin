@@ -2,8 +2,8 @@ import TextField from "@mui/material/TextField";
 import { useState } from "react";
 import { textFieldSx } from "../utils/MUICustomStyles";
 import Button from "@mui/material/Button";
-import { getBreadcrumbPath } from "./Breadcrumb";
 import { generateUniqueId } from "../utils/generateUniqueId";
+import { getBreadcrumbPath } from "../utils/breadcrumbPath";
 
 const FolderSearch = ({
   filesFoldersInCurrDir,
