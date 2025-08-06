@@ -82,7 +82,7 @@ export default function Search({
           p: "2px 4px",
           display: "flex",
           alignItems: "center",
-          width: 400,
+          width: "100%",
           backgroundColor: "#101828",
         }}
       >

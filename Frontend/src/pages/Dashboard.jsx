@@ -1,10 +1,9 @@
 import DashboardNav from "../components/DashboardNav";
 import DashboardMain from "../components/DashboardMain";
-import { Outlet, useParams } from "react-router";
+import { Outlet } from "react-router";
 import FilesFoldersContext from "../contexts/FilesFoldersContext";
 
 const Dashboard = () => {
-  let { username } = useParams();
   return (
     <FilesFoldersContext>
       <div className="flex justify-center" style={{}}>
