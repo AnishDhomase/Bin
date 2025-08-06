@@ -13,7 +13,9 @@ import FileUpload from "./FileUpload";
 import { FilesFoldersDataContext } from "../contexts/FilesFoldersContext";
 
 const DashboardMain = () => {
-  const { allDBFiles, setAllDBFiles } = useContext(FilesFoldersDataContext);
+  const { allDBFiles, setAllDBFiles, toggleStar, toggleTrash } = useContext(
+    FilesFoldersDataContext
+  );
   const [directory, setDirectory] = useState([]);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -23,6 +25,7 @@ const DashboardMain = () => {
   useEffect(() => {
     setSearchText("");
   }, [directory]);
+
   useEffect(() => {
     const fetchFiles = async () => {
       setLoading(true);
@@ -86,24 +89,6 @@ const DashboardMain = () => {
     setAllDBFiles((allDBFiles) => [...allDBFiles, newFolder]);
   }
 
-  function toggleStar(fileFolder) {
-    setAllDBFiles((allDBFiles) =>
-      allDBFiles.map((item) =>
-        item.id !== fileFolder.id
-          ? item
-          : { ...item, isStarred: !item.isStarred }
-      )
-    );
-  }
-
-  function toggleTrash(fileFolder) {
-    setAllDBFiles((allDBFiles) =>
-      allDBFiles.map((item) =>
-        item.id !== fileFolder.id ? item : { ...item, isTrash: !item.isTrash }
-      )
-    );
-  }
-
   return (
     <main className="bg-[#1c2331] w-4/5 p-8">
       <header className=" w-5/6 mx-auto mb-5">
@@ -122,7 +107,10 @@ const DashboardMain = () => {
               searchText={searchText}
               setSearchText={setSearchText}
             />
+
+            {/* Upload file and Add folder Modals */}
             <span className="flex gap-1.5">
+              {/* Upload files Modal */}
               <MyModal
                 btn={
                   <Button
@@ -170,6 +158,8 @@ const DashboardMain = () => {
                 </div>
                 <FileUpload />
               </MyModal>
+
+              {/* Add new folder Modal */}
               <MyModal
                 btn={
                   <Button
@@ -207,6 +197,8 @@ const DashboardMain = () => {
               </MyModal>
             </span>
           </section>
+
+          {/* Breadcrumb */}
           <header className="text-white text-2xl font-semibold w-3/4 mx-auto mt-10">
             <div
               className="bg-gray-900 px-4 py-1 rounded-md flex gap-1 text-gray-400 overflow-x-auto whitespace-nowrap custom-scrollbar items-center"

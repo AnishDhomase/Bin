@@ -4,6 +4,20 @@ import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import GradeOutlinedIcon from "@mui/icons-material/GradeOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { Link, NavLink, useParams } from "react-router";
+import { styled } from "@mui/material";
+
+const StyledNavLink = styled(NavLink)({
+  textDecoration: "none",
+  "&.active button": {
+    color: "#4294FF",
+    backgroundColor: "rgba(0, 149, 255, 0.1)",
+    borderRight: "5px solid #4294FF",
+    borderRadius: "0px",
+  },
+  "& button": {
+    color: "white",
+  },
+});
 
 const DashboardNav = () => {
   const { username } = useParams();
@@ -36,8 +50,9 @@ const DashboardNav = () => {
         <main className="border-t-2 border-gray-700">
           <h1 className="text-gray-400 pt-5 pb-1 text-md">File Manager</h1>
           <section className="flex flex-col pl-3">
-            <NavLink to="favourites">
+            <StyledNavLink to="favourites">
               <Button
+                fullWidth
                 variant="text"
                 startIcon={
                   <GradeOutlinedIcon
@@ -55,9 +70,10 @@ const DashboardNav = () => {
               >
                 Favourites
               </Button>
-            </NavLink>
-            <NavLink to="trash">
+            </StyledNavLink>
+            <StyledNavLink to="trash">
               <Button
+                fullWidth
                 variant="text"
                 startIcon={
                   <DeleteOutlinedIcon
@@ -75,7 +91,7 @@ const DashboardNav = () => {
               >
                 Trash
               </Button>
-            </NavLink>
+            </StyledNavLink>
           </section>
         </main>
       </div>

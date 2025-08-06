@@ -24,6 +24,7 @@ const FileFolder = ({
   toggleTrash,
   searchText = "",
   setSearchText,
+  isForFavTrashPage = false,
 }) => {
   const { setNodeRef: setDropRef } = useDroppable({
     id: file.id,
@@ -62,7 +63,8 @@ const FileFolder = ({
       // Considered as a click
       if (file.isFolder) {
         setSearchText("");
-        setDirectory((directory) => [...directory, file]);
+        if (!isForFavTrashPage)
+          setDirectory((directory) => [...directory, file]);
       }
     }
 

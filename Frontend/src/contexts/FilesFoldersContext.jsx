@@ -113,8 +113,28 @@ export const FilesFoldersDataContext = createContext();
 
 const FilesFoldersContext = ({ children }) => {
   const [allDBFiles, setAllDBFiles] = useState(filesData);
+
+  function toggleStar(fileFolder) {
+    setAllDBFiles((allDBFiles) =>
+      allDBFiles.map((item) =>
+        item.id !== fileFolder.id
+          ? item
+          : { ...item, isStarred: !item.isStarred }
+      )
+    );
+  }
+
+  function toggleTrash(fileFolder) {
+    setAllDBFiles((allDBFiles) =>
+      allDBFiles.map((item) =>
+        item.id !== fileFolder.id ? item : { ...item, isTrash: !item.isTrash }
+      )
+    );
+  }
   return (
-    <FilesFoldersDataContext.Provider value={{ allDBFiles, setAllDBFiles }}>
+    <FilesFoldersDataContext.Provider
+      value={{ allDBFiles, setAllDBFiles, toggleStar, toggleTrash }}
+    >
       {children}
     </FilesFoldersDataContext.Provider>
   );
