@@ -32,19 +32,32 @@ const DashboardFav = () => {
 
   return (
     <main className="bg-[#1c2331] w-4/5 p-8 text-white">
-      {/* Back button */}
-      <NavLink to={`/dashboard/${username}`}>
-        <IconButton aria-label="delete">
-          <i className="ri-arrow-left-long-line text-white"></i>
-        </IconButton>
-      </NavLink>
+      <header className="w-5/6 mx-auto flex gap-4 mb-8 items-center justify-start">
+        {/* Back button */}
+        <NavLink to={`/dashboard/${username}`}>
+          <IconButton
+            aria-label="delete"
+            sx={{
+              padding: 0,
+              color: "white",
+              position: "relative",
+              "&:hover": {
+                fontWeight: "900",
+                left: "-5px",
+                color: "#4294FF",
+                backgroundColor: "transparent", // or any subtle hover background
+              },
+            }}
+          >
+            <i className="ri-arrow-left-long-line text-inherit"></i>
+          </IconButton>
+        </NavLink>
+
+        {/* Title of page */}
+        <h1 className="text-white text-2xl font-semibold">Favourites</h1>
+      </header>
 
       <header className=" w-5/6 mx-auto mb-5">
-        {/* Title of page */}
-        <h1 className="text-white text-2xl font-semibold mb-5">
-          Your Favourites
-        </h1>
-
         <main className="min-h-[450px] bg-gray-800 rounded-xl p-5">
           <section className="flex justify-between content-center gap-2 w-3/4 mx-auto items-center">
             <Search

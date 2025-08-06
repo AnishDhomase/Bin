@@ -6,6 +6,7 @@ import Signup from "./pages/Signup";
 import DashboardMain from "./components/DashboardMain";
 import DashboardFav from "./components/DashboardFav";
 import DashboardTrash from "./components/DashboardTrash";
+import UserAccount from "./components/UserAccount";
 
 const router = createBrowserRouter([
   { path: "/", Component: Start },
@@ -16,6 +17,7 @@ const router = createBrowserRouter([
       { index: true, Component: DashboardMain },
       { path: "favourites", Component: DashboardFav },
       { path: "trash", Component: DashboardTrash },
+      { path: "account", Component: UserAccount },
     ],
   },
   {
