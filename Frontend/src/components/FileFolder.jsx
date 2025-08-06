@@ -154,7 +154,7 @@ const FileFolder = ({
 
 export default FileFolder;
 
-function truncateBaseName(fullName, maxBaseLen) {
+export function truncateBaseName(fullName, maxBaseLen) {
   const dot = fullName.lastIndexOf(".");
   const hasExt = dot > 0 && dot < fullName.length - 1;
   const base = hasExt ? fullName.slice(0, dot) : fullName;
