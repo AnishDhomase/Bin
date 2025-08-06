@@ -1,10 +1,10 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import FileFolder, { FileFolderLogo } from "../components/FileFolder";
 import Search from "../components/Search";
 import AddIcon from "@mui/icons-material/Add";
 import LinearProgress from "@mui/material/LinearProgress";
-import Breadcrumb, { getBreadcrumbPath } from "./Breadcrumb";
+import Breadcrumb from "./Breadcrumb";
 import { DndContext } from "@dnd-kit/core";
 import MyModal from "./MyModal";
 import FolderSearch from "./FolderSearch";
@@ -12,6 +12,7 @@ import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import FileUpload from "./FileUpload";
 import { FilesFoldersDataContext } from "../contexts/FilesFoldersContext";
 import { IconButton } from "@mui/material";
+import { getBreadcrumbPath } from "../utils/breadcrumbPath";
 
 const DashboardMain = () => {
   const { allDBFiles, setAllDBFiles, toggleStar, toggleTrash } = useContext(
