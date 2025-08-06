@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Button from "@mui/material/Button";
 import FileFolder, { FileFolderLogo } from "../components/FileFolder";
 import Search from "../components/Search";
@@ -10,127 +10,11 @@ import MyModal from "./MyModal";
 import FolderSearch from "./FolderSearch";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import FileUpload from "./FileUpload";
-const filesData = [
-  {
-    id: "1",
-    name: "Documents",
-    parentId: null,
-    isFolder: true,
-    isStarred: false,
-    isTrash: false,
-  },
-  {
-    id: "2",
-    name: "Work",
-    parentId: "1",
-    isFolder: true,
-    isStarred: false,
-    isTrash: false,
-  },
-  {
-    id: "3",
-    name: "Projects",
-    parentId: "1",
-    isFolder: true,
-    isStarred: false,
-    isTrash: false,
-  },
-  {
-    id: "4",
-    name: "Resume",
-    parentId: "2",
-    isFolder: true,
-    isStarred: false,
-    isTrash: false,
-  },
-  {
-    id: "5",
-    name: "myresume.pdf",
-    ext: "pdf",
-    parentId: "4",
-    isFolder: false,
-    isStarred: false,
-    isTrash: false,
-    type: "document",
-  },
-  {
-    id: "6",
-    name: "Photos",
-    parentId: "1",
-    isFolder: true,
-    isStarred: false,
-    isTrash: false,
-  },
-  {
-    id: "7",
-    name: "Summer Vacation",
-    parentId: "6",
-    isFolder: true,
-    isStarred: false,
-    isTrash: false,
-  },
-  {
-    id: "8",
-    name: "beach.jpg",
-    ext: "jpg",
-    parentId: "7",
-    isFolder: false,
-    isStarred: false,
-    isTrash: false,
-    type: "image",
-  },
-  {
-    id: "9",
-    name: "mountains.jpg",
-    ext: "jpg",
-    parentId: "7",
-    isFolder: false,
-    isStarred: false,
-    isTrash: false,
-    type: "image",
-  },
-  {
-    id: "10",
-    name: "2025",
-    parentId: "6",
-    isFolder: true,
-    isStarred: false,
-    isTrash: false,
-  },
-  {
-    id: "11",
-    name: "logo.png",
-    ext: "png",
-    parentId: null,
-    isFolder: false,
-    isStarred: false,
-    isTrash: false,
-    type: "image",
-  },
-  {
-    id: "12",
-    name: "todo.txt",
-    ext: "txt",
-    parentId: "1",
-    isFolder: false,
-    isStarred: false,
-    isTrash: false,
-    type: "document",
-  },
-];
-
-const fileType = ["Image", "Document", "Other", "Video"];
-const extType = [
-  { ext: "jpg", type: "Image", size: "1.25 GB" },
-  { ext: "png", type: "Image", size: "1.2 GB" },
-  { ext: "pdf", type: "Document", size: "1.5 GB" },
-  { ext: "txt", type: "Other", size: "45 MB" },
-  { ext: "mp4", type: "Video", size: "45 MB" },
-];
+import { FilesFoldersDataContext } from "../contexts/FilesFoldersContext";
 
 const DashboardMain = () => {
+  const { allDBFiles, setAllDBFiles } = useContext(FilesFoldersDataContext);
   const [directory, setDirectory] = useState([]);
-  const [allDBFiles, setAllDBFiles] = useState(filesData);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -333,6 +217,7 @@ const DashboardMain = () => {
               <Breadcrumb directory={directory} setDirectory={setDirectory} />
             </div>
           </header>
+
           {/* Loading indicator */}
           {loading && (
             <div className="w-3/4 mx-auto mt-4">
@@ -360,7 +245,7 @@ const DashboardMain = () => {
           )}
 
           {/* If no searchText and no files/folders in current directory*/}
-          {searchText.length === 0 && files.length === 0 && (
+          {!loading && searchText.length === 0 && files.length === 0 && (
             <h1 className="w-3/4 bg-gray-800 mx-auto mt-4 font-semibold text-xl text-[#4294FF]">
               Folder is empty. Add{" "}
               <span className="text-white ml-1">"Files"</span> or{" "}
