@@ -11,6 +11,7 @@ import FolderSearch from "./FolderSearch";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import FileUpload from "./FileUpload";
 import { FilesFoldersDataContext } from "../contexts/FilesFoldersContext";
+import { IconButton } from "@mui/material";
 
 const DashboardMain = () => {
   const { allDBFiles, setAllDBFiles, toggleStar, toggleTrash } = useContext(
@@ -91,6 +92,19 @@ const DashboardMain = () => {
 
   return (
     <main className="bg-[#1c2331] w-4/5 p-8">
+      <header className="w-5/6 mx-auto flex gap-2 mb-8 items-center justify-start">
+        <IconButton
+          aria-label="delete"
+          sx={{
+            padding: 0,
+          }}
+        >
+          <i className="ri-home-4-line text-white"></i>
+        </IconButton>
+
+        {/* Title of page */}
+        <h1 className="text-white text-2xl font-semibold">Home</h1>
+      </header>
       <header className=" w-5/6 mx-auto mb-5">
         <main className="h-[250px] bg-gray-900 rounded-xl p-5">
           <h1 className="text-white text-xl">
