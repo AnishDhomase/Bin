@@ -74,7 +74,7 @@ const FileFolder = ({
     setDragRef(node);
   };
 
-  if (file.isTrash) return;
+  // if (file.isTrash) return;
 
   return (
     <li
@@ -112,7 +112,6 @@ const FileFolder = ({
             onClick={(e) => {
               e.stopPropagation();
               toggleStar(file);
-              console.log("clicked");
             }}
           >
             {!file.isStarred ? (
@@ -136,7 +135,6 @@ const FileFolder = ({
             onClick={(e) => {
               e.stopPropagation();
               toggleTrash(file);
-              console.log("clicked");
             }}
           >
             <i className="ri-delete-bin-line text-gold text-2xl"></i>
