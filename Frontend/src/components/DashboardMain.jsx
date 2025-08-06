@@ -4,7 +4,7 @@ import FileFolder, { FileFolderLogo } from "../components/FileFolder";
 import Search from "../components/Search";
 import AddIcon from "@mui/icons-material/Add";
 import LinearProgress from "@mui/material/LinearProgress";
-import Breadcrumb from "./Breadcrumb";
+import Breadcrumb, { getBreadcrumbPath } from "./Breadcrumb";
 import { DndContext } from "@dnd-kit/core";
 import MyModal from "./MyModal";
 import FolderSearch from "./FolderSearch";
@@ -51,6 +51,7 @@ const filesData = [
     isFolder: false,
     isStarred: false,
     isTrash: false,
+    type: "document",
   },
   {
     id: "6",
@@ -76,6 +77,7 @@ const filesData = [
     isFolder: false,
     isStarred: false,
     isTrash: false,
+    type: "image",
   },
   {
     id: "9",
@@ -85,6 +87,7 @@ const filesData = [
     isFolder: false,
     isStarred: false,
     isTrash: false,
+    type: "image",
   },
   {
     id: "10",
@@ -102,6 +105,7 @@ const filesData = [
     isFolder: false,
     isStarred: false,
     isTrash: false,
+    type: "image",
   },
   {
     id: "12",
@@ -111,6 +115,7 @@ const filesData = [
     isFolder: false,
     isStarred: false,
     isTrash: false,
+    type: "document",
   },
 ];
 
@@ -131,6 +136,9 @@ const DashboardMain = () => {
   const [searchText, setSearchText] = useState("");
   const [searchedForFiles, setSearchedForFiles] = useState([]);
 
+  useEffect(() => {
+    setSearchText("");
+  }, [directory]);
   useEffect(() => {
     const fetchFiles = async () => {
       setLoading(true);
@@ -222,7 +230,7 @@ const DashboardMain = () => {
       </header>
       <main className="w-5/6 mx-auto bg-gray-800 py-10 rounded-xl">
         <div className="flex flex-col">
-          <section className="flex justify-between content-center gap-2 w-3/4 mx-auto">
+          <section className="flex justify-between content-center gap-2 w-3/4 mx-auto items-center">
             <Search
               files={files}
               setSearchedForFiles={setSearchedForFiles}
@@ -324,13 +332,14 @@ const DashboardMain = () => {
               <Breadcrumb directory={directory} setDirectory={setDirectory} />
             </div>
           </header>
-
+          {/* Loading indicator */}
           {loading && (
             <div className="w-3/4 mx-auto mt-4">
               <LinearProgress />
             </div>
           )}
 
+          {/* If no searchText allow drag and drop */}
           {searchText.length === 0 && (
             <ul className="flex flex-col gap-2 w-3/4 bg-gray-800 mx-auto mt-4">
               <DndContext onDragEnd={handleDragEnd}>
@@ -348,6 +357,18 @@ const DashboardMain = () => {
               </DndContext>
             </ul>
           )}
+
+          {/* If no searchText and no files/folders in current directory*/}
+          {searchText.length === 0 && files.length === 0 && (
+            <h1 className="w-3/4 bg-gray-800 mx-auto mt-4 font-semibold text-xl text-[#4294FF]">
+              Folder is empty. Add{" "}
+              <span className="text-white ml-1">"Files"</span> or{" "}
+              <span className="text-white ml-1">"Folders"</span> here to get
+              started
+            </h1>
+          )}
+
+          {/* If searchText present 1. don't allow drag and drop 2. heighlight results with query text*/}
           {searchText.length !== 0 && (
             <ul className="flex flex-col gap-2 w-3/4 bg-gray-800 mx-auto mt-4">
               {searchedForFiles.map((file) => (
@@ -363,6 +384,17 @@ const DashboardMain = () => {
               ))}
             </ul>
           )}
+
+          {/* If searchText present but no results found */}
+          {searchText.length !== 0 && searchedForFiles.length === 0 && (
+            <h1 className="w-3/4 bg-gray-800 mx-auto mt-4 font-semibold text-xl text-[#4294FF]">
+              Ooops! We couldn’t find anything for
+              <span className="text-white ml-1">"{searchText}"</span> in
+              <span className="text-white ml-1">
+                "{collapseBreadcrumbPath(getBreadcrumbPath(directory))}"
+              </span>
+            </h1>
+          )}
         </div>
       </main>
     </main>
@@ -370,3 +402,15 @@ const DashboardMain = () => {
 };
 
 export default DashboardMain;
+
+function collapseBreadcrumbPath(fullPath) {
+  const parts = fullPath.split("/").filter(Boolean);
+  if (parts.length <= 2) return fullPath;
+
+  const first = parts[0];
+  const last = parts[parts.length - 1];
+  const leading = fullPath.startsWith("/") ? "/" : "";
+  const trailing = fullPath.endsWith("/") ? "/" : "";
+
+  return `${leading}${first}/../${last}${trailing}`;
+}
