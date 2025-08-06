@@ -75,7 +75,7 @@ export default function Search({
     setFilter((prev) => ({ ...prev, [name]: checked }));
   };
   return (
-    <form>
+    <div>
       <Paper
         component="form"
         sx={{
@@ -195,6 +195,6 @@ export default function Search({
           </div>
         </MyModal>
       </Paper>
-    </form>
+    </div>
   );
 }
