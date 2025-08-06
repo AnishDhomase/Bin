@@ -1,12 +1,14 @@
+import { lazy, Suspense } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
-import Start from "./pages/Start";
-import Dashboard from "./pages/Dashboard";
-import Signin from "./pages/Signin";
-import Signup from "./pages/Signup";
-import DashboardMain from "./components/DashboardMain";
-import DashboardFav from "./components/DashboardFav";
-import DashboardTrash from "./components/DashboardTrash";
-import UserAccount from "./components/UserAccount";
+import Loading from "./Animations/Loading";
+const Start = lazy(() => import("./pages/Start"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const DashboardMain = lazy(() => import("./components/DashboardMain"));
+const DashboardFav = lazy(() => import("./components/DashboardFav"));
+const DashboardTrash = lazy(() => import("./components/DashboardTrash"));
+const UserAccount = lazy(() => import("./components/UserAccount"));
+const Signin = lazy(() => import("./pages/Signin"));
+const Signup = lazy(() => import("./pages/Signup"));
 
 const router = createBrowserRouter([
   { path: "/", Component: Start },
@@ -30,7 +32,11 @@ const router = createBrowserRouter([
 ]);
 
 const App = () => {
-  return <RouterProvider router={router} />;
+  return (
+    <Suspense fallback={<Loading />}>
+      <RouterProvider router={router} />;
+    </Suspense>
+  );
 };
 
 export default App;
