@@ -3,6 +3,8 @@ import { validationResult } from "express-validator";
 import UserModel from "../models/user.model.js";
 import { createUser } from "../services/user.service.js";
 import InvalidTokenModel from "../models/invalidToken.model.js";
+import { sendVerificationCode } from "../libs/email.js";
+import EmailVerificationTokenModel from "../models/emailVerificationToken.model.js";
 
 export const registerUser = async (req, res, next) => {
   // Check for validation errors from express-validator
@@ -32,6 +34,16 @@ export const registerUser = async (req, res, next) => {
 
   // Generate an authentication token for the user
   const token = user.generateAuthToken();
+
+  // Send email verification code to gmail
+  const verificationCode = Math.floor(
+    100000 + Math.random() * 900000
+  ).toString();
+  const emailVerificationTokenEntry = EmailVerificationTokenModel.create({
+    userId: user._id,
+    token: verificationCode,
+  });
+  sendVerificationCode(name, email, verificationCode);
 
   // Respond with the created user and token
   res.status(201).json({ user, token });
