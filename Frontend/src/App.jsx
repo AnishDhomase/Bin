@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import Loading from "./Animations/Loading";
+import AuthenticatedUserOnlyWrapper from "./components/AuthenticatedUserOnlyWrapper";
 const Start = lazy(() => import("./pages/Start"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const DashboardMain = lazy(() => import("./components/DashboardMain"));
@@ -14,7 +15,11 @@ const router = createBrowserRouter([
   { path: "/", Component: Start },
   {
     path: "/dashboard/:username",
-    Component: Dashboard,
+    element: (
+      <AuthenticatedUserOnlyWrapper>
+        <Dashboard />
+      </AuthenticatedUserOnlyWrapper>
+    ),
     children: [
       { index: true, Component: DashboardMain },
       { path: "favourites", Component: DashboardFav },
@@ -34,7 +39,7 @@ const router = createBrowserRouter([
 const App = () => {
   return (
     <Suspense fallback={<Loading />}>
-      <RouterProvider router={router} />;
+      <RouterProvider router={router} />
     </Suspense>
   );
 };

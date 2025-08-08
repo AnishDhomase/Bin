@@ -8,7 +8,7 @@ const SignupSigninOutline = ({ children, headline }) => {
     <SquaresBg>
       <main
         style={{
-          padding: "30px",
+          padding: "30px 60px",
           borderRadius: "10px",
           width: "450px",
           backgroundColor: "rgba(255, 255, 255, 0.126)",
@@ -24,24 +24,14 @@ const SignupSigninOutline = ({ children, headline }) => {
             flexDirection: "column",
             alignContent: "center",
             justifyContent: "center",
-            padding: "20px",
+            // padding: "20px",
           }}
+          className="mb-7"
         >
-          <Logo />
-          {/* <h1
-            style={{
-              fontSize: "30px",
-              fontWeight: "500",
-              color: "#45454c",
-              textAlign: "center",
-              marginBottom: "20px",
-            }}
-          >
-            {headline}
-          </h1> */}
+          <Logo size={45} />
           <SplitText
             text={headline}
-            className="text-3xl font-semibold text-center"
+            className="text-2xl font-semibold text-center"
             delay={100}
             duration={0.6}
             ease="power3.out"
@@ -51,7 +41,6 @@ const SignupSigninOutline = ({ children, headline }) => {
             threshold={0.1}
             rootMargin="-100px"
             textAlign="center"
-
             //   onLetterAnimationComplete={handleAnimationComplete}
           />
         </header>

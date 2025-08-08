@@ -22,7 +22,7 @@ const StyledNavLink = styled(NavLink)({
 const DashboardNav = () => {
   const { username } = useParams();
   return (
-    <nav className="sticky top-0 h-screen bg-gray-900 w-1/5 p-8 flex flex-col min-h-screen justify-between">
+    <nav className="sticky top-0 h-screen bg-gray-900 w-1/5 p-8 flex flex-col justify-between">
       <div>
         <NavLink to={`/dashboard/${username}`} end>
           <header className="pb-5">

@@ -6,7 +6,7 @@ const DashboardNav = lazy(() => import("../components/DashboardNav"));
 const Dashboard = () => {
   return (
     <FilesFoldersContext>
-      <div className="flex justify-center" style={{}}>
+      <div className="flex">
         <DashboardNav />
         <Outlet />
       </div>
