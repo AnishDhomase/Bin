@@ -1,25 +1,36 @@
 export const textFieldSx = {
-  input: {
-    fontSize: "20px",
+  "& .MuiOutlinedInput-root": {
+    fontSize: "18px",
     color: "#ffffff",
-  },
-  label: {
-    fontSize: "20px",
-    color: "#4294FF",
-    "&.Mui-focused": {
-      color: "#4294FF",
+    "& fieldset": {
+      borderColor: "#ffffff",
+    },
+    "&:hover fieldset": {
+      borderColor: "#4294FF",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "#4294FF",
     },
   },
-  "& .MuiInput-underline:before": {
-    borderBottomColor: "#ffffff",
+  "& .MuiInputLabel-root": {
+    fontSize: "20px",
+    color: "#4294FF",
+    top: "50%",
+    transform: "translate(14px, -50%)",
+    transition: "all 0.2s ease",
+    backgroundColor: "#202020", // match your input background to avoid overlap
+    padding: "0 4px", // Add padding so it doesn't touch border
   },
-  "& .MuiInput-underline:hover:before": {
-    borderBottomColor: "#4294FF",
+  "& .MuiInputLabel-root.Mui-focused, & .MuiInputLabel-root.MuiFormLabel-filled":
+    {
+      transform: "translate(14px, -9px) scale(0.75)", // Floating position
+      padding: "0 4px",
+    },
+  "& .MuiOutlinedInput-input": {
+    padding: "12px 18px", // default padding for better alignment
   },
-  "& .MuiInput-underline:hover": {
-    borderBottomColor: "#4294FF",
-  },
-  "& .MuiInput-underline:hover:after": {
-    borderBottomColor: "#4294FF",
+  "& .MuiInputLabel-shrink": {
+    top: "0",
+    transform: "translate(14px, -9px) scale(0.75)",
   },
 };

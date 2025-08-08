@@ -113,7 +113,7 @@ const DashboardMain = () => {
           </h1>
         </main>
       </header>
-      <main className="w-5/6 mx-auto bg-gray-800 py-10 rounded-xl min-h-3/5">
+      <main className="w-5/6 mx-auto bg-gray-800 py-10 rounded-xl">
         <div className="flex flex-col">
           <section className="flex justify-between content-center gap-2 w-3/4 mx-auto items-center">
             <Search

@@ -185,7 +185,7 @@ const Start = () => {
               </div>
             </div>
           </div> */}
-          c{" "}
+          {/* c{" "} */}
         </div>
       </GlitchBg>
 
