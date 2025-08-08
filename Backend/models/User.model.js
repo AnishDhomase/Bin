@@ -1,59 +1,54 @@
 import mongoose from "mongoose";
-import jwt from 'jsonwebtoken'
-import bcrypt from 'bcrypt'
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+
 const UserSchema = new mongoose.Schema({
-    username:{
-        type:String,
-        required:true,
-         minlength: [ 3, 'First name must be at least 3 characters long' ],
-
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: [2, "First name must be at least 2 characters long"],
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    lowercase: true,
+    validate: {
+      validator: function (v) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      },
+      message: "Please enter a valid email address",
     },
+    minlength: [5, "Email must be at least 5 characters long"],
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: [6, "Password must be at least 6 characters long"],
+    select: false, // Exclude password from queries by default
+  },
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
+});
 
-    email:{
-    type:String,
-        required:true,
-        unique: true,
-       
-    },
+UserSchema.methods.generateAuthToken = function () {
+  const token = jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: "24h",
+  });
+  return token;
+};
 
-    password:{
-    type:String,
-        required:true,
-         minlength: [ 6, 'Email must be at least 5 characters long' ],
-    },
-    pic:{
-    type:String,
-    default:"/img/image.png"
-    }
-})
+UserSchema.methods.comparePassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
 
-UserSchema.methods.generateToken =  function(){
-  try {
-        return jwt.sign({
-            userId:this._id.toString(),
-            email:this.email,
-        },process.env.JWT_KEY,{
-            expiresIn:"24h"
-        })
-  } catch (error) {
-    
-  }
-}
+UserSchema.statics.hashPassword = async function (password) {
+  return await bcrypt.hash(password, 10);
+};
 
-UserSchema.pre("save", async function(next){
-    const user = this;
-    if(!user.isModified('password')){
-        next();
-    }
-
-    try {
-        const salt =  bcrypt.genSaltSync(10);
-        const hashpassword = await bcrypt.hash(user.password,salt);
-        user.password = hashpassword;
-    } catch (error) {
-        console.log(error);
-        next(error)
-    }
-})
-
-export const User = mongoose.model("User",UserSchema);
+const UserModel = mongoose.model("user", UserSchema);
+export default UserModel;
