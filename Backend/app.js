@@ -1,26 +1,29 @@
-import express from 'express'
-import dotenv from 'dotenv'
-import cors from 'cors'
-import  cookieparser from 'cookie-parser'
-import userrouter from './routes/User.routes.js'
-import { dbconnect } from './db/db.js'
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import cookieparser from "cookie-parser";
+
+import userRouter from "./routes/user.routes.js";
+import { dbConnect } from "./db/db.js";
+
+// Load env variables for use
+dotenv.config();
+
 const app = express();
-dotenv.config()
-const PORT = process.env.PORT || 4000; 
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({extended:true}));
-app.use(cookieparser());
 
-// user routes
+// Connect to the database
+dbConnect();
 
-app.use('/user',userrouter)
+// Middlewares
+app.use(cors()); // Cross-Origin Resource Sharing
+app.use(express.json()); //Parses JSON request bodies into req.body
+app.use(express.urlencoded({ extended: true })); //Parses URL-encoded form data (e.g., from HTML forms) into req.body.
+app.use(cookieparser()); //Parses cookies from the request and makes them available in req.cookies
 
-dbconnect();
+// Routes
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+app.use("/users", userRouter);
 
-
- app.listen(PORT,()=>{
-    console.log(`server is running on port ${PORT}`);
-    
- })
-
+export default app;
