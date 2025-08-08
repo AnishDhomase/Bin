@@ -31,10 +31,9 @@ const Signin = () => {
       email: formData.get("email"),
       password: formData.get("password"),
     };
-    console.log(userData);
   }
   const login = useGoogleLogin({
-    onSuccess: (tokenResponse) => console.log(tokenResponse),
+    onSuccess: () => "",
   });
 
   return (

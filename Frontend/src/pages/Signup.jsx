@@ -38,7 +38,7 @@ const Signup = () => {
   }
 
   const login = useGoogleLogin({
-    onSuccess: (tokenResponse) => console.log(tokenResponse),
+    onSuccess: () => "",
   });
 
   return (
