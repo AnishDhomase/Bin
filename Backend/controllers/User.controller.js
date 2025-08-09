@@ -35,7 +35,10 @@ export const registerUser = async (req, res, next) => {
   // Generate an authentication token for the user
   const token = user.generateAuthToken();
 
-  // Send email verification code to gmail
+  // Set the token in a cookie
+  res.cookie("token", token);
+
+  // email verification
   const verificationCode = Math.floor(
     100000 + Math.random() * 900000
   ).toString();
