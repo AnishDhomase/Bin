@@ -17,9 +17,9 @@ const router = createBrowserRouter([
   {
     path: "/dashboard/:username",
     element: (
-      // <AuthenticatedUserOnlyWrapper>
-      <Dashboard />
-      // </AuthenticatedUserOnlyWrapper>
+      <AuthenticatedUserOnlyWrapper>
+        <Dashboard />
+      </AuthenticatedUserOnlyWrapper>
     ),
     children: [
       { index: true, Component: DashboardMain },

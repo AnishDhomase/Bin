@@ -31,9 +31,6 @@ const Signin = () => {
       password: formData.get("password"),
     };
   }
-  const login = useGoogleLogin({
-    onSuccess: () => "",
-  });
 
   return (
     <SignupSigninOutline headline={"Welcome Back"}>
@@ -107,7 +104,7 @@ const Signin = () => {
       </footer>
 
       {/* Google signin */}
-      <div className="text-white flex flex-col items-center rounded-md mx-auto">
+      {/* <div className="text-white flex flex-col items-center rounded-md mx-auto">
         <div className="flex items-center w-full gap-4 text-gray-300 text-sm my-5 ">
           <div className="flex-grow border-t border-gray-400" />
           <span>or</span>
@@ -125,7 +122,7 @@ const Signin = () => {
           />
           <span className="text-[16px] font-semibold">Sign in with Google</span>
         </button>
-      </div>
+      </div> */}
     </SignupSigninOutline>
   );
 };

@@ -6,10 +6,9 @@ import axios from "axios";
 
 const AuthenticatedUserOnlyWrapper = ({ children }) => {
   const token = localStorage.getItem("token");
-  console.log("token", token);
   const navigate = useNavigate();
-  const { user, setUser } = useUser();
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, setUser, isLoading, setIsLoading } = useUser();
+  // const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (user && user !== null && user !== undefined) return;
@@ -17,8 +16,11 @@ const AuthenticatedUserOnlyWrapper = ({ children }) => {
       navigate("/auth/signin");
       return;
     }
-    console.log("checking", user);
+
     const fetchProfile = async () => {
+      // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      // await delay(5000); // Wait for 5 second
+
       axios
         .get(`${import.meta.env.VITE_BASE_URL}/users/profile`, {
           headers: {
@@ -27,26 +29,28 @@ const AuthenticatedUserOnlyWrapper = ({ children }) => {
         })
         .then((response) => {
           if (response.status === 200) {
-            console.log("try", response);
             setUser(response.data);
           }
         })
-        .catch((err) => {
-          console.log("catch", err);
+        .catch(() => {
           localStorage.removeItem("token");
           navigate("/auth/signin");
         })
         .finally(() => {
-          console.log("finally");
           setIsLoading(false);
         });
     };
 
     fetchProfile();
-  }, [token, user, navigate, setUser]);
+  }, [token, user, navigate, setUser, isLoading, setIsLoading]);
 
-  if (isLoading)
-    return <div className="text-white text-3xl">Verifying You...</div>;
+  if (isLoading) {
+    return (
+      <div className="text-white text-3xl bg-[#b3404035] h-screen w-screen ">
+        Verifying You...
+      </div>
+    );
+  }
   return <>{children}</>;
 };
 

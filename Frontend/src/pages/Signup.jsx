@@ -4,6 +4,7 @@ import SignupSigninOutline from "../components/SignupSigninOutline";
 import { textFieldSx } from "../utils/MUICustomStyles";
 import { Link, useNavigate } from "react-router";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 import { GoogleLogin, googleLogout, useGoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
@@ -11,8 +12,9 @@ import { IconButton, InputAdornment } from "@mui/material";
 
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { useContext } from "react";
 import { UserDataContext, useUser } from "../contexts/UserContext";
+
+const headline = "Create account";
 
 const Signup = () => {
   // Controlled form state
@@ -61,34 +63,8 @@ const Signup = () => {
       console.error("Registration failed:", error);
     }
   };
-
-  // function handleLogout() {
-  //   googleLogout();
-  // }
-
-  // const login = useGoogleLogin({
-  //   onSuccess: async (tokenResponse) => {
-  //     console.log(tokenResponse);
-
-  //     // Get user info from Google API
-  //     const userInfo = await axios
-  //       .get("https://www.googleapis.com/oauth2/v3/userinfo", {
-  //         headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-  //       })
-  //       .then((res) => res.data);
-
-  //     console.log(userInfo);
-
-  //     // // Send the Google access token or user info to your backend
-  //     // await axios.post("/api/auth/google", {
-  //     //   access_token: tokenResponse.access_token,
-  //     // });
-  //   },
-  //   flow: "implicit", // default flow
-  // });
-
   return (
-    <SignupSigninOutline headline={"Create account"}>
+    <SignupSigninOutline headline={headline}>
       <form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
         <TextField
           name="name"
@@ -176,7 +152,7 @@ const Signup = () => {
       </footer>
 
       {/* Google signin */}
-      <div className="text-white flex flex-col items-center rounded-md mx-auto">
+      {/* <div className="text-white flex flex-col items-center rounded-md mx-auto">
         <div className="flex items-center w-full gap-4 text-gray-300 text-sm my-5 ">
           <div className="flex-grow border-t border-gray-400" />
           <span>or</span>
@@ -184,7 +160,7 @@ const Signup = () => {
         </div>
 
         <button
-          // onClick={() => login()}
+          onClick={() => login()}
           className="w-full flex justify-center items-center gap-3 cursor-pointer bg-white text-black px-[5px] py-[10px] rounded-md hover:bg-gray-200 transition duration-200"
         >
           <img
@@ -194,7 +170,7 @@ const Signup = () => {
           />
           <span className="text-[16px] font-semibold">Sign up with Google</span>
         </button>
-      </div>
+      </div> */}
     </SignupSigninOutline>
   );
 };

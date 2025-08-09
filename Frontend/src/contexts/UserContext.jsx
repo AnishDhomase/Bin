@@ -8,9 +8,12 @@ export const UserDataContext = createContext();
 
 const UserContext = ({ children }) => {
   const [user, setUser] = useState();
+  const [isLoading, setIsLoading] = useState(true);
 
   return (
-    <UserDataContext.Provider value={{ user, setUser }}>
+    <UserDataContext.Provider
+      value={{ user, setUser, isLoading, setIsLoading }}
+    >
       {children}
     </UserDataContext.Provider>
   );
