@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import Loading from "./Animations/Loading";
 import AuthenticatedUserOnlyWrapper from "./components/AuthenticatedUserOnlyWrapper";
+import VerifyEmail from "./pages/VerifyEmail";
 const Start = lazy(() => import("./pages/Start"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const DashboardMain = lazy(() => import("./components/DashboardMain"));
@@ -32,6 +33,14 @@ const router = createBrowserRouter([
     children: [
       { path: "signup", Component: Signup },
       { path: "signin", Component: Signin },
+      {
+        path: "verify-email",
+        element: (
+          <AuthenticatedUserOnlyWrapper>
+            <VerifyEmail />
+          </AuthenticatedUserOnlyWrapper>
+        ),
+      },
     ],
   },
 ]);

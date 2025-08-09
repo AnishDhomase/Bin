@@ -6,11 +6,9 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import UserContext from "./contexts/UserContext.jsx";
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
-      <UserContext>
-        <App />
-      </UserContext>
-    </GoogleOAuthProvider>
-  </StrictMode>
+  <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
+    <UserContext>
+      <App />
+    </UserContext>
+  </GoogleOAuthProvider>
 );

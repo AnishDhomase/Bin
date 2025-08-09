@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import SignupSigninOutline from "../components/SignupSigninOutline";
 import { textFieldSx } from "../utils/MUICustomStyles";
 import { Link, useNavigate } from "react-router";
-import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 import { GoogleLogin, googleLogout, useGoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
@@ -11,10 +11,18 @@ import { IconButton, InputAdornment } from "@mui/material";
 
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { useContext } from "react";
+import { UserDataContext, useUser } from "../contexts/UserContext";
 
 const Signup = () => {
+  // Controlled form state
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { setUser } = useUser();
 
+  // Show and hide password MUI
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleMouseDownPassword = (event) => {
@@ -24,26 +32,64 @@ const Signup = () => {
     event.preventDefault();
   };
 
-  async function handleFormSubmit(formData) {
-    const userData = {
-      name: formData.get("name"),
-      email: formData.get("email"),
-      password: formData.get("password"),
-    };
-    console.log(userData);
-  }
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
 
-  function handleLogout() {
-    googleLogout();
-  }
+    try {
+      const userData = { name, email, password };
 
-  const login = useGoogleLogin({
-    onSuccess: () => "",
-  });
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/users/register`,
+        userData
+      );
+
+      if (response.status === 201) {
+        const data = response.data;
+        localStorage.setItem("token", data.token);
+
+        // setUser(data.user);
+        navigate("/auth/verify-email");
+
+        // Clear form
+        // setName("");
+        // setEmail("");
+        // setPassword("");
+      } else {
+        console.log("Unexpected response:", response);
+      }
+    } catch (error) {
+      console.error("Registration failed:", error);
+    }
+  };
+
+  // function handleLogout() {
+  //   googleLogout();
+  // }
+
+  // const login = useGoogleLogin({
+  //   onSuccess: async (tokenResponse) => {
+  //     console.log(tokenResponse);
+
+  //     // Get user info from Google API
+  //     const userInfo = await axios
+  //       .get("https://www.googleapis.com/oauth2/v3/userinfo", {
+  //         headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+  //       })
+  //       .then((res) => res.data);
+
+  //     console.log(userInfo);
+
+  //     // // Send the Google access token or user info to your backend
+  //     // await axios.post("/api/auth/google", {
+  //     //   access_token: tokenResponse.access_token,
+  //     // });
+  //   },
+  //   flow: "implicit", // default flow
+  // });
 
   return (
     <SignupSigninOutline headline={"Create account"}>
-      <form action={handleFormSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
         <TextField
           name="name"
           required
@@ -53,6 +99,8 @@ const Signup = () => {
           placeholder="Anish Dhomase"
           autoComplete="off"
           sx={textFieldSx}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
         />
         <TextField
           name="email"
@@ -63,6 +111,8 @@ const Signup = () => {
           autoComplete="off"
           placeholder="example@example.com"
           sx={textFieldSx}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <TextField
           name="password"
@@ -73,6 +123,8 @@ const Signup = () => {
           type={showPassword ? "text" : "password"}
           placeholder="At least of length 6"
           sx={textFieldSx}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -110,7 +162,7 @@ const Signup = () => {
             },
           }}
         >
-          Register Register
+          Register
         </Button>
       </form>
 
@@ -132,7 +184,7 @@ const Signup = () => {
         </div>
 
         <button
-          onClick={() => login()}
+          // onClick={() => login()}
           className="w-full flex justify-center items-center gap-3 cursor-pointer bg-white text-black px-[5px] py-[10px] rounded-md hover:bg-gray-200 transition duration-200"
         >
           <img
