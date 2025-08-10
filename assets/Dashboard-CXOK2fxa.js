@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/DashboardNav-DmlGBR_Y.js","assets/index-BwPoasN2.js","assets/index-0hZccWI_.css"])))=>i.map(i=>d[i]);
+import{j as s,r,O as t,_ as a}from"./index-BwPoasN2.js";import{F as e}from"./FilesFoldersContext-82Vimxxd.js";const o=r.lazy(()=>a(()=>import("./DashboardNav-DmlGBR_Y.js"),__vite__mapDeps([0,1,2]))),x=()=>s.jsx(e,{children:s.jsxs("div",{className:"flex",children:[s.jsx(o,{}),s.jsx(t,{})]})});export{x as default};
