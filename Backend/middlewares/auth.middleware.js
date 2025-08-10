@@ -35,3 +35,17 @@ export const authenticateUser = async (req, res, next) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 };
+
+export const emailVerifiedUser = async (req, res, next) => {
+  try{
+    // Check isEmailVerified of user from the request object
+    if(!req.user.isEmailVerified) {
+      return res.status(401).json({ message: "Unauthorized! Verify email first" });
+    }
+
+    // Proceed to the next middleware or route handler
+    return next();
+  } catch (error) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+};

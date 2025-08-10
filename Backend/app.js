@@ -1,14 +1,13 @@
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import cookieparser from "cookie-parser";
 
 import userRouter from "./routes/user.routes.js";
 import emailRouter from "./routes/email.routes.js";
+import assetRouter from "./routes/asset.routes.js";
 import { dbConnect } from "./db/db.js";
 
-// Load env variables for use
-dotenv.config();
+
 
 const app = express();
 
@@ -37,5 +36,6 @@ app.get("/", (req, res) => {
 });
 app.use("/users", userRouter);
 app.use("/email", emailRouter);
+app.use("/asset", assetRouter);
 
 export default app;

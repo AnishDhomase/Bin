@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+// Load env variables for use
+dotenv.config();
+
 import http from "http";
 import app from "./app.js";
 
