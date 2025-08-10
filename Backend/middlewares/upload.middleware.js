@@ -2,16 +2,46 @@ import multer from "multer";
 import path from "path";
 
 const allowedMimeTypes = [
-  "image/jpeg",
-  "image/png",
-  "image/gif",
-  "image/bmp",
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "text/plain",
+  // Common raster formats
+  "image/jpeg", // .jpg, .jpeg
+  "image/jpg", // .jpg, .jpeg
+  "image/png", // .png
+  "image/gif", // .gif
+  "image/bmp", // .bmp
+  "image/webp", // .webp
+  "image/tiff", // .tif, .tiff
+  "image/x-icon", // .ico
+
+  // Vector formats
+  "image/svg+xml", // .svg
+  "image/heic", // HEIC (Apple high-efficiency image)
+  "image/heif", // HEIF
+
+  // 📄 Documents
+  "application/pdf", // .pdf
+
+  // Word
+  "application/msword", // .doc
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+
+  // Excel
+  "application/vnd.ms-excel", // .xls
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+
+  // PowerPoint
+  "application/vnd.ms-powerpoint", // .ppt
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+
+  // Text
+  "text/plain", // .txt
+  "text/csv", // .csv
+
+  // OpenDocument formats
+  "application/vnd.oasis.opendocument.text", // .odt
+  "application/vnd.oasis.opendocument.spreadsheet", // .ods
+  "application/vnd.oasis.opendocument.presentation", // .odp
 ];
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB file size limit
+export const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB file size limit
 
 // set multer storage
 const storage = multer.diskStorage({

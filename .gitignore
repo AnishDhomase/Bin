@@ -1,7 +1,7 @@
 # My files
 getMySecretPass.js
 .env
-uploads/*
+uploads/
 
 # Logs
 logs
