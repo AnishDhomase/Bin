@@ -374,6 +374,5 @@ export default {
   toggleTrash,
   changeName,
   getFilesFlders,
-  // fetchImagesController,
   // deleteImageController,
 };

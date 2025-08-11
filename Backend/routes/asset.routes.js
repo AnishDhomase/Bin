@@ -8,12 +8,14 @@ import { body, param, query } from "express-validator";
 import multerUploadMiddleware from "../middlewares/upload.middleware.js";
 import { expressValidator } from "../middlewares/bodyValidator.middleware.js";
 import mongoose from "mongoose";
+import { MINUTE, rateLimiter } from "../middlewares/rate-limiter.middleware.js";
 
 const router = express.Router();
 
 // Upload file
 router.post(
   "/file",
+  rateLimiter(15 * MINUTE, 20),
   [
     body("parentId")
       .optional({ nullable: true })
@@ -35,6 +37,7 @@ router.post(
 // Create folder
 router.post(
   "/folder",
+  rateLimiter(15 * MINUTE, 20),
   [
     body("name").trim().notEmpty().withMessage("Name is required"),
     body("parentId")
@@ -56,6 +59,7 @@ router.post(
 // Toggle Star fileFolder
 router.patch(
   "/:fileFolderId/star",
+  rateLimiter(MINUTE, 30),
   [
     param("fileFolderId").isMongoId().withMessage("Invalid file/folder ID"),
     expressValidator,
@@ -68,6 +72,7 @@ router.patch(
 // Toggle trash fileFolder
 router.patch(
   "/:fileFolderId/trash",
+  rateLimiter(MINUTE, 30),
   [
     param("fileFolderId").isMongoId().withMessage("Invalid file/folder ID"),
     expressValidator,
@@ -80,6 +85,7 @@ router.patch(
 // change fileFolder name
 router.patch(
   "/:fileFolderId/name",
+  rateLimiter(MINUTE, 30),
   [
     body("name").trim().notEmpty().withMessage("Name is required"),
     expressValidator,
@@ -92,6 +98,7 @@ router.patch(
 // get fileFolders
 router.get(
   "/",
+  rateLimiter(MINUTE, 30),
   [
     // parentId is optional but must be a valid MongoDB ObjectId if provided
     query("parentId").optional().isMongoId().withMessage("Invalid parentId"),
