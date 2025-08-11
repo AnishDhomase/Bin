@@ -175,9 +175,71 @@ export const folderCreate = async (req, res, next) => {
   res.status(201).json({ newFolder });
 };
 
+export const toggleStar = async (req, res, next) => {
+  try {
+    // Destructure request
+    const userId = req.user.id;
+    const fileFolderId = req.params.fileFolderId;
+
+    // Check fileFolder exist
+    const fileFolderToToggle = await FileFolderModel.findOne({
+      _id: fileFolderId,
+      userId,
+    });
+    if (!fileFolderToToggle)
+      return res
+        .status(404)
+        .json({ success: false, message: "Provide valid file or folder id" });
+
+    fileFolderToToggle.isStarred = !fileFolderToToggle.isStarred;
+    await fileFolderToToggle.save();
+
+    res.json({ success: true, data: fileFolderToToggle });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Error occured while starring the file or folder",
+      error: err,
+    });
+  }
+};
+
+export const toggleTrash = async (req, res, next) => {
+  try {
+    // Destructure request
+    const userId = req.user.id;
+    const fileFolderId = req.params.fileFolderId;
+
+    // Check fileFolder exist
+    const fileFolderToToggle = await FileFolderModel.findOne({
+      _id: fileFolderId,
+      userId,
+    });
+    if (!fileFolderToToggle)
+      return res
+        .status(404)
+        .json({ success: false, message: "Provide valid file or folder id" });
+
+    fileFolderToToggle.isTrash = !fileFolderToToggle.isTrash;
+    await fileFolderToToggle.save();
+
+    res.json({ success: true, data: fileFolderToToggle });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Error occured while trashing the file or folder",
+      error: err,
+    });
+  }
+};
+
 export default {
   fileUpload,
   folderCreate,
+  toggleStar,
+  toggleTrash,
   // fetchImagesController,
   // deleteImageController,
 };

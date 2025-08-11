@@ -46,19 +46,34 @@ const fileFolderSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+
+    trashedByParent: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
 
-// Middleware: If a folder is moved to trash, recursively mark all children as trash
-fileFolderSchema.pre("findOneAndUpdate", async function (next) {
-  const update = this.getUpdate();
-  if (update?.isTrash === true) {
-    const folder = await this.model.findOne(this.getQuery());
-    if (folder?.isFolder) {
-      await cascadeTrash(folder._id, this.model);
-    }
+// Middleware: If a folder is toogle from trash, recursively toggle its children from trash
+fileFolderSchema.pre("save", async function (next) {
+  if (!this.isModified("isTrash")) return next();
+
+  // get options to save or not
+  const saveOptions = this.$__.saveOptions || {};
+
+  // Moving folder to trash
+  if (this.isTrash) {
+    this.trashedAt = new Date();
+    if (!saveOptions.skipParentFlag) this.trashedByParent = false; // only root manual trash
+    if (this.isFolder) await cascadeTrash(this._id, this.constructor);
+  } else {
+    // Restoring folder from trash
+    await restoreSingle(this, this.constructor, this.userId, true);
+    if (this.isFolder)
+      await cascadeRestore(this._id, this.constructor, this.userId);
   }
+
   next();
 });
 
@@ -68,11 +83,73 @@ async function cascadeTrash(parentId, Model) {
     if (!child.isTrash) {
       child.isTrash = true;
       child.trashedAt = new Date();
-      await child.save();
+      child.trashedByParent = true; // mark as auto-trashed
+      await child.save({ skipParentFlag: true });
     }
     if (child.isFolder) {
       await cascadeTrash(child._id, Model);
     }
+  }
+}
+
+async function cascadeRestore(parentId, Model, userId) {
+  const children = await Model.find({ parentId, trashedByParent: true });
+
+  for (const child of children) {
+    await restoreSingle(child, Model, userId);
+    if (child.isFolder) {
+      await cascadeRestore(child._id, Model, userId);
+    }
+  }
+}
+
+async function restoreSingle(doc, Model, userId, skipSave = false) {
+  // Check if parent exists
+  if (doc.parentId) {
+    const parentExists = await Model.exists({
+      _id: doc.parentId,
+      userId,
+      isTrash: false,
+    });
+    if (!parentExists) {
+      doc.parentId = null; // orphan recovery
+    }
+  }
+
+  // Check for duplicates in parent
+  let nameConflict = await Model.exists({
+    name: doc.name,
+    isFolder: doc.isFolder,
+    parentId: doc.parentId || null,
+    userId,
+    isTrash: false,
+  });
+  if (nameConflict) {
+    let baseName = doc.name;
+    let counter = 1;
+
+    // Keep appending (n) until unique
+    while (
+      await Model.exists({
+        name: `${baseName} (${counter})`,
+        isFolder: doc.isFolder,
+        parentId: doc.parentId || null,
+        userId,
+        isTrash: false,
+      })
+    ) {
+      counter++;
+    }
+    doc.name = `${baseName} (${counter})`;
+  }
+
+  // Recover item
+  doc.isTrash = false;
+  doc.trashedAt = null;
+  doc.trashedByParent = false;
+
+  if (!skipSave) {
+    await doc.save();
   }
 }
 
