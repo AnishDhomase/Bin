@@ -4,7 +4,7 @@ import {
   authenticateUser,
   emailVerifiedUser,
 } from "../middlewares/auth.middleware.js";
-import { body, param } from "express-validator";
+import { body, param, query } from "express-validator";
 import multerUploadMiddleware from "../middlewares/upload.middleware.js";
 import { expressValidator } from "../middlewares/bodyValidator.middleware.js";
 import mongoose from "mongoose";
@@ -87,6 +87,19 @@ router.patch(
   authenticateUser,
   emailVerifiedUser,
   assetController.changeName
+);
+
+// get fileFolders
+router.get(
+  "/",
+  [
+    // parentId is optional but must be a valid MongoDB ObjectId if provided
+    query("parentId").optional().isMongoId().withMessage("Invalid parentId"),
+    expressValidator,
+  ],
+  authenticateUser,
+  emailVerifiedUser,
+  assetController.getFilesFlders
 );
 
 export default router;

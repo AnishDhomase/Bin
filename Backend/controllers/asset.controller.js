@@ -324,12 +324,56 @@ export const changeName = async (req, res, next) => {
   }
 };
 
+export const getFilesFlders = async (req, res, next) => {
+  try {
+    // Destructure request
+    const userId = req.user.id;
+    const parentId = req.query.parentId || null;
+
+    // If parentId is provided, check it exists or not
+    let parentFolder = null;
+    if (parentId) {
+      parentFolder = await FileFolderModel.findOne({
+        _id: parentId,
+        userId,
+        isFolder: true,
+        isTrash: false,
+      });
+
+      if (!parentFolder) {
+        return res.status(404).json({ message: "Parent folder not found" });
+      }
+    }
+
+    const items = await FileFolderModel.find({
+      parentId,
+      userId,
+      isTrash: false,
+    })
+      .sort({ isFolder: -1, name: 1 }) // folders first, then files
+      .populate({
+        path: "cloudinaryAssetId",
+        select: "-publicId",
+      });
+
+    res.json({ success: true, data: items });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Error occured while fetching the files and folders",
+      error: err,
+    });
+  }
+};
+
 export default {
   fileUpload,
   folderCreate,
   toggleStar,
   toggleTrash,
   changeName,
+  getFilesFlders,
   // fetchImagesController,
   // deleteImageController,
 };
