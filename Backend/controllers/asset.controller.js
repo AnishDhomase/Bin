@@ -5,83 +5,87 @@ import FileFolderModel from "../models/fileFolder.model.js";
 
 const fileUpload = async (req, res) => {
   try {
-    console.log(req?.file, req?.files);
     //check if file is missing in req object
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: "File is required. Please upload an image",
+        message: "File is required.",
         data: null,
       });
     }
-    // if (req.files && req.files.length > 1) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Only one file can be uploaded at a time.",
-    //     data: null,
-    //   });
-    // }
 
-    // Validate file size (2MB = 2 * 1024 * 1024 bytes)
-    // if (req.file.size > MAX_FILE_SIZE) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "File size exceeds 2MB limit.",
-    //     data: null,
-    //   });
-    // }
+    // Destructure the request
+    const { parentId } = req.body;
+    const { originalname: fileName, mimetype, size } = req.file;
+    const userId = req.user._id;
 
-    // Validate file type (image or document)
-    // const allowedImageTypes = [
-    //   "image/jpeg",
-    //   "image/png",
-    //   "image/jpg",
-    //   "image/gif",
-    // ];
-    // const allowedDocTypes = [
-    //   "application/pdf",
-    //   "application/msword",
-    //   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    // ];
+    // If parentId is provided, check it exists or not
+    let parentFolder = null;
+    if (parentId) {
+      parentFolder = await FileFolderModel.findOne({
+        _id: parentId,
+        userId,
+        isFolder: true,
+        isTrash: false,
+      });
 
-    // if (
-    //   ![...allowedImageTypes, ...allowedDocTypes].includes(req.file.mimetype)
-    // ) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Invalid file type. Only images and documents are allowed.",
-    //     data: null,
-    //   });
-    // }
+      if (!parentFolder) {
+        return res.status(404).json({ message: "Parent folder not found" });
+      }
+    }
+
+    // Check for duplicate file name in the same parent
+    const existingFile = await FileFolderModel.findOne({
+      name: fileName,
+      parentId: parentId || null,
+      userId,
+      isFolder: false,
+      isTrash: false,
+    });
+    if (existingFile) {
+      return res.status(400).json({
+        message: `A file with the name ${fileName} already exists in this directory`,
+      });
+    }
 
     //upload to cloudinary
-
     const {
       url,
       publicId,
       format, //jpg
       resource_type, //image
-      original_filename, //fileName
     } = await uploadToCloudinary(req.file.path);
 
-    //store the file url and public id in database
-    const newlyUploadedFile = CloudinaryAssetModel.create({
+    // Multer: Delete file from server storage
+    fs.unlinkSync(req.file.path);
+
+    //store the file url and public id and other metadata in database
+    const uploadedCloudinaryAsset = await CloudinaryAssetModel.create({
       url,
       publicId,
+      format,
+      resource_type,
+      mimetype,
+      size,
     });
 
-    // Delete file from server storage
-    fs.unlinkSync(req.file.path);
+    // Create FileFolder entry in database and connect it with corresponding CloudinaryAsset
+    const newFile = await FileFolderModel.create({
+      name: fileName,
+      parentId: parentId || null,
+      userId,
+      isFolder: false,
+      cloudinaryAssetId: uploadedCloudinaryAsset._id,
+    });
 
     res.status(201).json({
       success: true,
       message: "File uploaded successfully",
-      data: newlyUploadedFile,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error while uploading image! Please try again",
+      message: "Error while uploading file",
       error,
     });
   }

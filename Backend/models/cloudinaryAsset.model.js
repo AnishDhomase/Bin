@@ -9,6 +9,23 @@ const CloudinaryAssetSchema = new mongoose.Schema(
     publicId: {
       type: String,
       required: true,
+      select: false,
+    },
+    format: {
+      type: String,
+      required: true, // e.g., 'jpg'
+    },
+    resource_type: {
+      type: String,
+      required: true, // e.g., 'image', 'video', 'raw'
+    },
+    mimetype: {
+      type: String,
+      required: true, // e.g., 'image/png'
+    },
+    size: {
+      type: Number,
+      required: true, // file size in bytes
     },
   },
   { timestamps: true }

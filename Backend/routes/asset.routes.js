@@ -13,6 +13,18 @@ const router = express.Router();
 
 router.post(
   "/file",
+  [
+    body("parentId")
+      .optional({ nullable: true })
+      .custom((value) => {
+        if (!value) return true;
+        if (!mongoose.Types.ObjectId.isValid(value)) {
+          throw new Error("Invalid parentId");
+        }
+        return true;
+      }),
+    expressValidator,
+  ],
   authenticateUser,
   emailVerifiedUser,
   multerUploadMiddleware.single("file"),
