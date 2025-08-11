@@ -53,7 +53,7 @@ router.post(
   assetController.folderCreate
 );
 
-// Toogle Star fileFolder
+// Toggle Star fileFolder
 router.patch(
   "/:fileFolderId/star",
   [
@@ -65,7 +65,7 @@ router.patch(
   assetController.toggleStar
 );
 
-// Toogle trash fileFolder
+// Toggle trash fileFolder
 router.patch(
   "/:fileFolderId/trash",
   [
@@ -75,6 +75,18 @@ router.patch(
   authenticateUser,
   emailVerifiedUser,
   assetController.toggleTrash
+);
+
+// change fileFolder name
+router.patch(
+  "/:fileFolderId/name",
+  [
+    body("name").trim().notEmpty().withMessage("Name is required"),
+    expressValidator,
+  ],
+  authenticateUser,
+  emailVerifiedUser,
+  assetController.changeName
 );
 
 export default router;

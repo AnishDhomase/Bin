@@ -235,11 +235,71 @@ export const toggleTrash = async (req, res, next) => {
   }
 };
 
+export const changeName = async (req, res, next) => {
+  try {
+    // Destructure request
+    const { name } = req.body;
+    const userId = req.user.id;
+    const fileFolderId = req.params.fileFolderId;
+
+    // Check fileFolder exist
+    const fileFolderToChange = await FileFolderModel.findOne({
+      _id: fileFolderId,
+      userId,
+    });
+    if (!fileFolderToChange) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Provide valid file or folder id" });
+    }
+
+    // Check fileFolder exist of same new name and update newName accordingly
+    let nameConflict = await FileFolderModel.findOne({
+      name,
+      parentId: fileFolderToChange.parentId || null,
+      isFolder: fileFolderToChange.isFolder,
+      userId,
+      isTrash: false,
+    });
+    let newName = name.trim();
+    if (nameConflict) {
+      let baseName = newName;
+      let counter = 1;
+      while (
+        await FileFolderModel.findOne({
+          name: `${baseName} (${counter})`,
+          parentId: fileFolderToChange.parentId || null,
+          isFolder: fileFolderToChange.isFolder,
+          userId,
+          isTrash: false,
+        })
+      ) {
+        counter++;
+      }
+      newName = `${baseName} (${counter})`;
+    }
+
+    // save new name to db
+    fileFolderToChange.name = newName;
+    await fileFolderToChange.save();
+
+    res.json({ success: true, data: fileFolderToChange });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Error occured while renaming the file or folder",
+      error: err,
+    });
+  }
+};
+
 export default {
   fileUpload,
   folderCreate,
   toggleStar,
   toggleTrash,
+  changeName,
   // fetchImagesController,
   // deleteImageController,
 };
