@@ -34,18 +34,30 @@ const fileUpload = async (req, res) => {
       }
     }
 
-    // Check for duplicate file name in the same parent
-    const existingFile = await FileFolderModel.findOne({
+    // Check file exist of same new name and update newName accordingly
+    let nameConflict = await FileFolderModel.findOne({
       name: fileName,
       parentId: parentId || null,
       userId,
       isFolder: false,
       isTrash: false,
     });
-    if (existingFile) {
-      return res.status(400).json({
-        message: `A file with the name ${fileName} already exists in this directory`,
-      });
+    let newName = fileName.trim();
+    if (nameConflict) {
+      let baseName = newName;
+      let counter = 1;
+      while (
+        await FileFolderModel.findOne({
+          name: `${baseName} (${counter})`,
+          parentId: parentId || null,
+          userId,
+          isFolder: false,
+          isTrash: false,
+        })
+      ) {
+        counter++;
+      }
+      newName = `${baseName} (${counter})`;
     }
 
     //upload to cloudinary
@@ -71,7 +83,7 @@ const fileUpload = async (req, res) => {
 
     // Create FileFolder entry in database and connect it with corresponding CloudinaryAsset
     const newFile = await FileFolderModel.create({
-      name: fileName,
+      name: newName,
       parentId: parentId || null,
       userId,
       isFolder: false,
@@ -81,6 +93,7 @@ const fileUpload = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "File uploaded successfully",
+      data: newFile,
     });
   } catch (error) {
     res.status(500).json({
@@ -149,23 +162,35 @@ export const folderCreate = async (req, res, next) => {
     }
   }
 
-  // Check for duplicate folder name in the same parent
-  const existingFolder = await FileFolderModel.findOne({
+  // Check folder exist of same new name and update newName accordingly
+  let nameConflict = await FileFolderModel.findOne({
     name: name.trim(),
     parentId: parentId || null,
     userId,
     isFolder: true,
     isTrash: false,
   });
-  if (existingFolder) {
-    return res.status(400).json({
-      message: `A folder with the name ${name} already exists in this directory`,
-    });
+  let newName = name.trim();
+  if (nameConflict) {
+    let baseName = newName;
+    let counter = 1;
+    while (
+      await FileFolderModel.findOne({
+        name: `${baseName} (${counter})`,
+        parentId: parentId || null,
+        userId,
+        isFolder: true,
+        isTrash: false,
+      })
+    ) {
+      counter++;
+    }
+    newName = `${baseName} (${counter})`;
   }
 
   // Create new folder
   const newFolder = await FileFolderModel.create({
-    name,
+    name: newName,
     parentId: parentId || null,
     userId,
     isFolder: true,
@@ -251,6 +276,11 @@ export const changeName = async (req, res, next) => {
       return res
         .status(404)
         .json({ success: false, message: "Provide valid file or folder id" });
+    }
+    if (fileFolderToChange.name === name) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Same name is provided" });
     }
 
     // Check fileFolder exist of same new name and update newName accordingly
