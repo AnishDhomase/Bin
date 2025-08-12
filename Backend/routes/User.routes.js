@@ -3,6 +3,7 @@ import userController from "../controllers/user.controller.js";
 import { authenticateUser } from "../middlewares/auth.middleware.js";
 import { body } from "express-validator";
 import { MINUTE, rateLimiter } from "../middlewares/rate-limiter.middleware.js";
+import { expressValidator } from "../middlewares/bodyValidator.middleware.js";
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.post(
     body("password")
       .isLength({ min: 6 })
       .withMessage("Password must be at least 6 characters long"),
+    expressValidator,
   ],
   userController.registerUser
 );
@@ -29,6 +31,7 @@ router.post(
     body("password")
       .isLength({ min: 6 })
       .withMessage("Password must be at least 6 characters long"),
+    expressValidator,
   ],
   userController.loginUser
 );

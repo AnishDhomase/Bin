@@ -8,17 +8,6 @@ import EmailVerificationTokenModel from "../models/emailVerificationToken.model.
 
 export const verifyUserEmail = async (req, res, next) => {
   try {
-    // Check for validation errors from express-validator
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errorCode: "VALIDATION_ERROR",
-        errors: errors.array(),
-      });
-    }
-
     // get user from the request object (set by authenticateUser middleware)
     const user = req.user;
 

@@ -8,17 +8,6 @@ import EmailVerificationTokenModel from "../models/emailVerificationToken.model.
 
 export const registerUser = async (req, res, next) => {
   try {
-    // Check for validation errors from express-validator
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errorCode: "VALIDATION_ERROR",
-        errors: errors.array(),
-      });
-    }
-
     // Destructure the request body
     const { name, email, password } = req.body;
 
@@ -76,17 +65,6 @@ export const registerUser = async (req, res, next) => {
 
 export const loginUser = async (req, res, next) => {
   try {
-    // Check for validation errors from express-validator
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errorCode: "VALIDATION_ERROR",
-        errors: errors.array(),
-      });
-    }
-
     // Destructure the request body
     const { email, password } = req.body;
 
