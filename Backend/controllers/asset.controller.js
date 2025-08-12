@@ -346,8 +346,8 @@ export const getFilesFlders = async (req, res, next) => {
     }
 
     const items = await FileFolderModel.find({
-      parentId,
       userId,
+      parentId,
       isTrash: false,
     })
       .sort({ isFolder: -1, name: 1 }) // folders first, then files

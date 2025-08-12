@@ -6,15 +6,19 @@ import emailRouter from "./routes/email.routes.js";
 import assetRouter from "./routes/asset.routes.js";
 import { dbConnect } from "./db/db.js";
 import { MINUTE, rateLimiter } from "./middlewares/rate-limiter.middleware.js";
+import { CRON_JOB_AUTO_DELETE_TRASH_TIME, cronJobForAutoDeletionFromRecycleBinParmanently } from "./models/fileFolder.model.js";
 
 const app = express();
 
 // Connect to the database
 dbConnect();
 
+// Cron-job
+setInterval(cronJobForAutoDeletionFromRecycleBinParmanently, CRON_JOB_AUTO_DELETE_TRASH_TIME);
+
+
 // Middlewares
 // app.use(cors()); // Cross-Origin Resource Sharing
-
 const allowedOrigin = "http://localhost:5173";
 app.use(
   cors({

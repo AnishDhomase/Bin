@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import { cloudinary } from "../configs/cloudinary.js";
+import CloudinaryAssetModel from "./cloudinaryAsset.model.js";
 
 const fileFolderSchema = new mongoose.Schema(
   {
@@ -165,11 +167,45 @@ fileFolderSchema.statics.deleteOldTrash = async function () {
   });
 
   for (const item of oldTrash) {
-    await this.deleteOne({ _id: item._id });
-    // Optionally: Also delete from Cloudinary if it's a file
-    // if (!item.isFolder && item.cloudinaryAssetId) { ... }
+    try {
+      // Delete the corresponding CloudinaryAsset if it's a file
+      if (!item.isFolder) {
+        //delete first from your cloudinary stroage
+        const cloudinaryAssetToDelete = await CloudinaryAssetModel.findById(
+          item.cloudinaryAssetId
+        ).select("+publicId");
+        await cloudinary.uploader.destroy(cloudinaryAssetToDelete.publicId);
+
+        //delete from database
+        await CloudinaryAssetModel.findByIdAndDelete(
+          cloudinaryAssetToDelete._id
+        );
+      }
+
+      // Delete from fileFolder
+      await this.deleteOne({ _id: item._id });
+    } catch (err) {
+      console.error(
+        `Routine delete: Error deleting trash ${
+          item.isFolder ? "folder" : "file"
+        } ${item._id}: ${item.name}`,
+        err
+      );
+    }
   }
 };
 
 const FileFolderModel = mongoose.model("fileFolder", fileFolderSchema);
 export default FileFolderModel;
+
+// Cron job: Run once every 24 hours (24 * 60 * 60 * 1000 ms)
+export const CRON_JOB_AUTO_DELETE_TRASH_TIME = 24 * 60 * 60 * 1000;
+export const cronJobForAutoDeletionFromRecycleBinParmanently = async () => {
+  console.log("Running daily trash cleanup...");
+  try {
+    await FileFolderModel.deleteOldTrash();
+    console.log("Trash cleanup completed");
+  } catch (err) {
+    console.error("Trash cleanup error:", err);
+  }
+};
