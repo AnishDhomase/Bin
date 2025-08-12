@@ -109,4 +109,26 @@ router.get(
   assetController.getFilesFlders
 );
 
+// relocate fileFolder
+router.patch(
+  "/:fileFolderId/relocate",
+  rateLimiter(MINUTE, 30),
+  [
+    param("fileFolderId").isMongoId().withMessage("Invalid file/folder ID"),
+    body("newParentId")
+      .optional({ nullable: true })
+      .custom((value) => {
+        if (!value) return true;
+        if (!mongoose.Types.ObjectId.isValid(value)) {
+          throw new Error("Invalid new ParentId");
+        }
+        return true;
+      }),
+    expressValidator,
+  ],
+  authenticateUser,
+  emailVerifiedUser,
+  assetController.relocateFilesFlders
+);
+
 export default router;

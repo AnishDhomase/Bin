@@ -367,6 +367,91 @@ export const getFilesFlders = async (req, res, next) => {
   }
 };
 
+export const relocateFilesFlders = async (req, res, next) => {
+  try {
+    // Destructure request
+    const userId = req.user.id;
+    const { newParentId } = req.body;
+    const fileFolderId = req.params.fileFolderId;
+
+    // Check fileFolder exist
+    const fileFolderToRelocate = await FileFolderModel.findOne({
+      _id: fileFolderId,
+      userId,
+      isTrash: false,
+    });
+    if (!fileFolderToRelocate) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Provide valid file or folder id" });
+    }
+
+    // If parentId is provided, check it exists or not
+    let newParentFolder = null;
+    if (newParentId) {
+      newParentFolder = await FileFolderModel.findOne({
+        _id: newParentId,
+        userId,
+        isFolder: true,
+        isTrash: false,
+      });
+
+      if (!newParentFolder) {
+        return res.status(404).json({ message: "New Parent folder not found" });
+      }
+    }
+
+    // Check if no relocation to new directory
+    if (fileFolderToRelocate.parentId === newParentId) {
+      return res.status(404).json({
+        success: false,
+        message: "Can't relocate! Same newParentId is provided",
+      });
+    }
+
+    // Check fileFolder exist of same new name and update newName accordingly
+    let nameConflict = await FileFolderModel.findOne({
+      name: fileFolderToRelocate.name,
+      parentId: newParentId,
+      isFolder: fileFolderToRelocate.isFolder,
+      userId,
+      isTrash: false,
+    });
+    let newName = fileFolderToRelocate.name.trim();
+    if (nameConflict) {
+      let baseName = newName;
+      let counter = 1;
+      while (
+        await FileFolderModel.findOne({
+          name: `${baseName} (${counter})`,
+          parentId: newParentId,
+          isFolder: fileFolderToRelocate.isFolder,
+          userId,
+          isTrash: false,
+        })
+      ) {
+        counter++;
+      }
+      newName = `${baseName} (${counter})`;
+    }
+
+    // save new name to db
+    fileFolderToRelocate.name = newName;
+    fileFolderToRelocate.parentId = newParentId;
+
+    await fileFolderToRelocate.save();
+
+    res.json({ success: true, data: fileFolderToRelocate });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Error occured while relocating the file or folder",
+      error: err,
+    });
+  }
+};
+
 export default {
   fileUpload,
   folderCreate,
@@ -374,5 +459,5 @@ export default {
   toggleTrash,
   changeName,
   getFilesFlders,
-  // deleteImageController,
+  relocateFilesFlders,
 };
