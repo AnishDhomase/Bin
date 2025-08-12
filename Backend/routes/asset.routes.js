@@ -106,7 +106,7 @@ router.get(
   ],
   authenticateUser,
   emailVerifiedUser,
-  assetController.getFilesFlders
+  assetController.getFilesFolders
 );
 
 // relocate fileFolder
@@ -128,7 +128,7 @@ router.patch(
   ],
   authenticateUser,
   emailVerifiedUser,
-  assetController.relocateFilesFlders
+  assetController.relocateFilesFolders
 );
 
 export default router;
