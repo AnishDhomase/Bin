@@ -5,15 +5,21 @@ import { createUser } from "../services/user.service.js";
 import InvalidTokenModel from "../models/invalidToken.model.js";
 import { sendVerificationCode } from "../libs/email.js";
 import EmailVerificationTokenModel from "../models/emailVerificationToken.model.js";
+import mongoose from "mongoose";
 
 export const registerUser = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     // Destructure the request body
     const { name, email, password } = req.body;
 
     // Check if user with the same email already exists
-    const isExistingUser = await UserModel.findOne({ email });
+    const isExistingUser = await UserModel.findOne({ email }).session(session);
     if (isExistingUser) {
+      await session.abortTransaction();
+      session.endSession();
+
       return res.status(400).json({
         success: false,
         message: "User already exists",
@@ -25,11 +31,35 @@ export const registerUser = async (req, res, next) => {
     const hashedPassword = await UserModel.hashPassword(password);
 
     // Create a new user using createUser user service
-    const user = await createUser({
-      name,
-      email,
-      password: hashedPassword,
-    });
+    const [user] = await UserModel.create(
+      [
+        {
+          name,
+          email,
+          password: hashedPassword,
+        },
+      ],
+      { session }
+    );
+
+    // create email verification token in db
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+    const emailVerificationTokenEntry =
+      await EmailVerificationTokenModel.create(
+        [
+          {
+            userId: user._id,
+            token: verificationCode,
+          },
+        ],
+        { session }
+      );
+
+    // Commit transaction
+    await session.commitTransaction();
+    session.endSession();
 
     // Generate an authentication token for the user
     const token = user.generateAuthToken();
@@ -37,14 +67,7 @@ export const registerUser = async (req, res, next) => {
     // Set the token in a cookie
     res.cookie("token", token);
 
-    // email verification
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
-    const emailVerificationTokenEntry = EmailVerificationTokenModel.create({
-      userId: user._id,
-      token: verificationCode,
-    });
+    // send email of verification code
     sendVerificationCode(name, email, verificationCode);
 
     // Respond with the created user and token
@@ -54,6 +77,8 @@ export const registerUser = async (req, res, next) => {
       data: { user, token },
     });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     res.status(500).json({
       success: false,
       message: "Failed to register user",
