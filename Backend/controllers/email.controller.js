@@ -5,14 +5,19 @@ import { createUser } from "../services/user.service.js";
 import InvalidTokenModel from "../models/invalidToken.model.js";
 import { sendVerificationCode } from "../libs/email.js";
 import EmailVerificationTokenModel from "../models/emailVerificationToken.model.js";
+import mongoose from "mongoose";
 
 export const verifyUserEmail = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     // get user from the request object (set by authenticateUser middleware)
     const user = req.user;
 
     // Check if user is already verified
     if (user.isEmailVerified) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(400).json({
         success: false,
         message: "Email is already verified",
@@ -27,8 +32,10 @@ export const verifyUserEmail = async (req, res, next) => {
     const isTokenExist = await EmailVerificationTokenModel.findOne({
       userId: user._id,
       token,
-    });
+    }).session(session);
     if (!isTokenExist) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(401).json({
         success: false,
         message: "Invalid token",
@@ -40,8 +47,17 @@ export const verifyUserEmail = async (req, res, next) => {
     const savedUser = await UserModel.findOneAndUpdate(
       { _id: user._id }, // filter
       { isEmailVerified: true }, // update
-      { new: true } // return the updated doc
+      { new: true, session } // return the updated doc
     );
+
+    // Delete used token
+    await EmailVerificationTokenModel.deleteOne(
+      { userId: user._id },
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
 
     res.status(200).json({
       success: true,
@@ -49,6 +65,8 @@ export const verifyUserEmail = async (req, res, next) => {
       data: savedUser,
     });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     res.status(500).json({
       success: false,
       message: "Failed to verify email",
@@ -59,12 +77,16 @@ export const verifyUserEmail = async (req, res, next) => {
 };
 
 export const sendVerificationTokenToUserEmail = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     // get user from the request object (set by authenticateUser middleware)
     const user = req.user;
 
     //   Check if user is already verified
     if (user.isEmailVerified) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(400).json({
         success: false,
         message: "Email is already verified",
@@ -72,22 +94,37 @@ export const sendVerificationTokenToUserEmail = async (req, res, next) => {
       });
     }
     // Clear token from db if already exist
-    await EmailVerificationTokenModel.deleteOne({ userId: user._id });
+    await EmailVerificationTokenModel.deleteOne(
+      { userId: user._id },
+      { session }
+    );
 
     // email verification
     const verificationCode = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
 
-    const emailVerificationTokenEntry = EmailVerificationTokenModel.create({
-      userId: user._id,
-      token: verificationCode,
-    });
+    const emailVerificationTokenEntry =
+      await EmailVerificationTokenModel.create(
+        [
+          {
+            userId: user._id,
+            token: verificationCode,
+          },
+        ],
+        { session }
+      );
 
+    await session.commitTransaction();
+    session.endSession();
+
+    // Send email
     sendVerificationCode(user.name, user.email, verificationCode);
 
     res.status(200).json({ success: true, message: "OTP sent successfully" });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     res.status(500).json({
       success: false,
       message: "Failed to send verification token",
