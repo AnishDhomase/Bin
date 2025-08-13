@@ -2,11 +2,16 @@ import fs from "fs";
 import { uploadToCloudinary } from "../libs/cloudinaryHelper.js";
 import CloudinaryAssetModel from "../models/cloudinaryAsset.model.js";
 import FileFolderModel from "../models/fileFolder.model.js";
+import { cloudinary } from "../configs/cloudinary.js";
 
 const fileUpload = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  let publicId; // to clean up Cloudinary in catch
   try {
     //check if file is missing in req object
     if (!req.file) {
+      await session.abortTransaction();
       return res.status(400).json({
         success: false,
         message: "File is required.",
@@ -27,9 +32,10 @@ const fileUpload = async (req, res) => {
         userId,
         isFolder: true,
         isTrash: false,
-      });
+      }).session(session);
 
       if (!parentFolder) {
+        await session.abortTransaction();
         return res.status(404).json({
           success: false,
           message: "Parent folder not found",
@@ -45,7 +51,7 @@ const fileUpload = async (req, res) => {
       userId,
       isFolder: false,
       isTrash: false,
-    });
+    }).session(session);
     let newName = fileName.trim();
     if (nameConflict) {
       let baseName = newName;
@@ -57,7 +63,7 @@ const fileUpload = async (req, res) => {
           userId,
           isFolder: false,
           isTrash: false,
-        })
+        }).session(session)
       ) {
         counter++;
       }
@@ -67,32 +73,49 @@ const fileUpload = async (req, res) => {
     //upload to cloudinary
     const {
       url,
-      publicId,
+      publicId: uploadedPublicId,
       format, //jpg
       resource_type, //image
     } = await uploadToCloudinary(req.file.path);
+    publicId = uploadedPublicId;
 
     // Multer: Delete file from server storage
-    fs.unlinkSync(req.file.path);
+    try {
+      fs.unlinkSync(req.file.path);
+    } catch (unlinkErr) {
+      console.warn("Failed to delete temp file:", unlinkErr.message);
+    }
 
     //store the file url and public id and other metadata in database
-    const uploadedCloudinaryAsset = await CloudinaryAssetModel.create({
-      url,
-      publicId,
-      format,
-      resource_type,
-      mimetype,
-      size,
-    });
+    const [uploadedCloudinaryAsset] = await CloudinaryAssetModel.create(
+      [
+        {
+          url,
+          publicId,
+          format,
+          resource_type,
+          mimetype,
+          size,
+        },
+      ],
+      { session }
+    );
 
     // Create FileFolder entry in database and connect it with corresponding CloudinaryAsset
-    const newFile = await FileFolderModel.create({
-      name: newName,
-      parentId: parentId || null,
-      userId,
-      isFolder: false,
-      cloudinaryAssetId: uploadedCloudinaryAsset._id,
-    });
+    const [newFile] = await FileFolderModel.create(
+      [
+        {
+          name: newName,
+          parentId: parentId || null,
+          userId,
+          isFolder: false,
+          cloudinaryAssetId: uploadedCloudinaryAsset._id,
+        },
+      ],
+      { session }
+    );
+
+    await session.commitTransaction();
 
     res.status(201).json({
       success: true,
@@ -100,12 +123,25 @@ const fileUpload = async (req, res) => {
       data: newFile,
     });
   } catch (error) {
+    await session.abortTransaction();
+
+    //Cleanup Cloudinary asset if it was uploaded but DB failed
+    if (publicId) {
+      try {
+        await cloudinary.uploader.destroy(publicId);
+      } catch (cleanupErr) {
+        console.error("Cloudinary cleanup failed:", cleanupErr.message);
+      }
+    }
+
     res.status(500).json({
       success: false,
       message: "Something went wrong while uploading file",
       errorCode: "UPLOAD_FAILED",
       error: error.message,
     });
+  } finally {
+    session.endSession();
   }
 };
 
