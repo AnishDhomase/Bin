@@ -50,4 +50,12 @@ router.get(
   userController.getUserProfile
 );
 
+router.patch(
+  "/email",
+  rateLimiter(60 * MINUTE, 5),
+  [body("email").isEmail().withMessage("Invalid email"), expressValidator],
+  authenticateUser,
+  userController.editEmail
+);
+
 export default router;

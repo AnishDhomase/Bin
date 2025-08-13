@@ -174,9 +174,80 @@ export const getUserProfile = async (req, res, next) => {
   }
 };
 
+export const editEmail = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const { email: newEmail } = req.body;
+    const userId = req.user._id;
+
+    // check if already verified
+    if (req.user.isEmailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is already verified. Cannot change email.",
+        errorCode: "EMAIL_ALREADY_VERIFIED",
+      });
+    }
+
+    // check if newEmail === prevEmail
+    if (req.user.email === newEmail) {
+      return res.status(400).json({
+        success: false,
+        message: "Same email is provided. Cannot change email.",
+        errorCode: "SAME_EMAIL",
+      });
+    }
+
+    // Check if new email is already taken
+    const isExistingEmail = await UserModel.findOne({ newEmail }).session(
+      session
+    );
+    if (isExistingEmail) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({
+        success: false,
+        message: "Email already in use by another account",
+        errorCode: "EMAIL_ALREADY_EXISTS",
+      });
+    }
+
+    // Update email
+    const updatedUser = await UserModel.findOneAndUpdate(
+      { _id: userId },
+      { $set: { email: newEmail } },
+      { session, new: true }
+    );
+
+    // Remove old verification tokens for this user
+    await EmailVerificationTokenModel.deleteMany({ userId }).session(session);
+
+    // Commit transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(200).json({
+      success: true,
+      message: "Email updated successfully",
+      data: updatedUser,
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    res.status(500).json({
+      success: false,
+      message: "Failed to update email",
+      errorCode: "EMAIL_UPDATE_FAILED",
+      error: error.message,
+    });
+  }
+};
+
 export default {
   registerUser,
   loginUser,
   logoutUser,
   getUserProfile,
+  editEmail,
 };
