@@ -2,10 +2,11 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import SignupSigninOutline from "../components/SignupSigninOutline";
 import { textFieldSx } from "../utils/MUICustomStyles";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
 import {
+  CircularProgress,
   FormControl,
   IconButton,
   Input,
@@ -14,8 +15,22 @@ import {
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { useToast } from "../contexts/ToastContext";
+import { useUser } from "../contexts/UserContext";
+import { delay } from "../utils/delay";
+import { isvalidEmail } from "../utils/validateEmail";
+import axios from "axios";
+import ToastLogin from "../components/Toast/ToastLogin";
+import ToastError from "../components/Toast/ToastError";
 
 const Signin = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { user } = useUser();
+  const navigate = useNavigate();
+  const toast = useToast();
+
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleMouseDownPassword = (event) => {
@@ -25,26 +40,78 @@ const Signin = () => {
     event.preventDefault();
   };
 
-  async function handleFormSubmit(formData) {
-    const userData = {
-      email: formData.get("email"),
-      password: formData.get("password"),
-    };
-  }
+  // Submit Form handler
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await delay(1000); // Wait for 1 second
+
+      if (!isvalidEmail(email)) {
+        toast.open(
+          <ToastError
+            headline="Invalid Email"
+            subHeadline="Incorrect Email format"
+          />
+        );
+        return;
+      }
+      if (password?.length < 6) {
+        toast.open(
+          <ToastError
+            headline="Password Too Small"
+            subHeadline="Password should be at least of length 6"
+          />
+        );
+        return;
+      }
+      const userData = { email, password };
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/users/login`,
+        userData
+      );
+
+      if (response.data.success === true) {
+        toast.open(<ToastLogin />);
+        const { token, user } = response.data.data;
+        localStorage.setItem("token", token);
+
+        await delay(2000); // Wait for 1 second
+        navigate(`/dashboard/${user.name}`);
+      } else {
+        console.log("Error");
+      }
+    } catch (error) {
+      const errCode = error.response.data.errorCode;
+      const errSubHeadlineMsg = error.response.data.message;
+      const errHeadlineMsg =
+        errCode === "INVALID_CREDENTIALS"
+          ? "Invalid credentials"
+          : "Login Failed";
+      toast.open(
+        <ToastError headline={errHeadlineMsg} subHeadline={errSubHeadlineMsg} />
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SignupSigninOutline headline={"Welcome Back"}>
-      <form action={handleFormSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
         <TextField
           name="email"
           required
           id="standard-basic"
           label="Email"
           variant="outlined"
+          autoComplete="off"
           placeholder="example@example.com"
           sx={textFieldSx}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
-
         <TextField
           name="password"
           required
@@ -54,6 +121,8 @@ const Signin = () => {
           type={showPassword ? "text" : "password"}
           placeholder="At least of length 6"
           sx={textFieldSx}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -76,6 +145,7 @@ const Signin = () => {
           }}
         />
         <Button
+          disabled={loading}
           type="submit"
           variant="contained"
           disableElevation
@@ -89,16 +159,31 @@ const Signin = () => {
             "&:hover": {
               backgroundColor: "#376CFB",
             },
+            "&.Mui-disabled": {
+              backgroundColor: "rgba(66, 148, 255, 0.5)", // 50% transparent
+              color: "rgba(255, 255, 255, 0.7)", // lighter text
+            },
           }}
         >
-          Login
+          {!loading ? (
+            "Login"
+          ) : (
+            <div className="flex content-center">
+              <CircularProgress size="31px" color="inherit" />
+            </div>
+          )}
         </Button>
       </form>
       <footer className="px-5 text-white flex justify-center gap-1 mt-1">
         Don't have an account?
         <Link to="/auth/signup">
-          <button className="text-[#4294FF] cursor-pointer font-medium">
-            Signup
+          <button
+            disabled={loading}
+            className={`text-[#4294FF] font-medium ${
+              !loading ? "cursor-pointer" : ""
+            }`}
+          >
+            {!loading ? <Link to="/auth/signup">Signup</Link> : "Signup"}
           </button>
         </Link>
       </footer>

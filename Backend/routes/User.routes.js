@@ -25,7 +25,7 @@ router.post(
 
 router.post(
   "/login",
-  rateLimiter(15 * MINUTE, 10),
+  // rateLimiter(15 * MINUTE, 10),
   [
     body("email").isEmail().withMessage("Invalid email"),
     body("password")

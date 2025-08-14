@@ -207,9 +207,11 @@ const Signup = () => {
         Already have an account?
         <button
           disabled={loading}
-          className="text-[#4294FF] cursor-pointer font-medium"
+          className={`text-[#4294FF] font-medium ${
+            !loading ? "cursor-pointer" : ""
+          }`}
         >
-          <Link to="/auth/signin">Signin</Link>
+          {!loading ? <Link to="/auth/signin">Signin</Link> : "Signin"}
         </button>
       </footer>
 
