@@ -10,6 +10,9 @@ import {
   useRef,
   useState,
 } from "react";
+import { useUser } from "../contexts/UserContext";
+import { useToast } from "../contexts/ToastContext";
+import ToastError from "./Toast/ToastError";
 
 const style = {
   position: "absolute",
@@ -33,6 +36,8 @@ export default function MyModal({ children, btn }) {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const inputRef = useRef(null);
+  const { user } = useUser();
+  const toast = useToast();
 
   // Focus the input after modal opens
   useEffect(() => {
@@ -44,8 +49,22 @@ export default function MyModal({ children, btn }) {
     }
   }, [open]);
 
+  function handleUnVerifiedUser() {
+    toast.open(
+      <ToastError
+        headline="Email isn't verified"
+        subHeadline="To avail all features, verify email"
+      />
+    );
+    return;
+  }
+
   // Clone the trigger node and inject onClick
-  const TriggerBtn = cloneElement(btn, { onClick: handleOpen });
+  // Clone the trigger node and inject onClick
+  let TriggerBtn;
+  if (user.isEmailVerified)
+    TriggerBtn = cloneElement(btn, { onClick: handleOpen });
+  else TriggerBtn = cloneElement(btn, { onClick: handleUnVerifiedUser });
 
   // Clone children and pass closeModal function
   const childrenWithClose = Children.map(children, (child) => {

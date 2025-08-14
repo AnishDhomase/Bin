@@ -13,6 +13,7 @@ import FileUpload from "./FileUpload";
 import { FilesFoldersDataContext } from "../contexts/FilesFoldersContext";
 import { IconButton } from "@mui/material";
 import { getBreadcrumbPath } from "../utils/breadcrumbPath";
+import { useToast } from "../contexts/ToastContext";
 
 const DashboardMain = () => {
   const { allDBFiles, setAllDBFiles, toggleStar, toggleTrash } = useContext(
