@@ -6,7 +6,7 @@ const DashboardTrash = () => {
   let { username } = useParams();
 
   return (
-    <main className="bg-[#1c2331] w-4/5 p-8 h-screen text-white">
+    <main className="p-8 h-screen">
       <header className="w-5/6 mx-auto flex gap-4 mb-8 items-center justify-start">
         {/* Back button */}
         <NavLink to={`/dashboard/${username}`}>

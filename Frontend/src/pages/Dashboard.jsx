@@ -1,6 +1,9 @@
-import { Outlet } from "react-router";
+import { Link, Outlet, useParams } from "react-router";
 import FilesFoldersContext from "../contexts/FilesFoldersContext";
 import { lazy } from "react";
+import { StyledNavLink } from "../components/DashboardNav";
+import { Button } from "@mui/material";
+import DashboardBanner from "../components/DashboardBanner";
 const DashboardNav = lazy(() => import("../components/DashboardNav"));
 
 const Dashboard = () => {
@@ -8,7 +11,10 @@ const Dashboard = () => {
     <FilesFoldersContext>
       <div className="flex">
         <DashboardNav />
-        <Outlet />
+        <div className="bg-[#1c2331] w-4/5">
+          <DashboardBanner />
+          <Outlet />
+        </div>
       </div>
     </FilesFoldersContext>
   );

@@ -92,7 +92,7 @@ const DashboardMain = () => {
   }
 
   return (
-    <main className="bg-[#1c2331] w-4/5 p-8">
+    <main className="p-8">
       <header className="w-5/6 mx-auto flex gap-2 mb-8 items-center justify-start">
         <IconButton
           aria-label="delete"

@@ -6,7 +6,7 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { Link, NavLink, useParams } from "react-router";
 import { styled } from "@mui/material";
 
-const StyledNavLink = styled(NavLink)({
+export const StyledNavLink = styled(NavLink)({
   textDecoration: "none",
   "&.active button": {
     color: "#4294FF",
