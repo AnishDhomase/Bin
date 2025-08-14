@@ -13,6 +13,10 @@ import { IconButton, InputAdornment } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { UserDataContext, useUser } from "../contexts/UserContext";
+import { useToast } from "../contexts/ToastContext";
+import ToastAuthenticated from "../components/Toast/ToastAuthenticated";
+import ToastEmailVerified from "../components/Toast/ToastEmailVerified";
+import ToastError from "../components/Toast/ToastError";
 
 const headline = "Create account";
 
@@ -23,6 +27,7 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { setUser } = useUser();
+  const toast = useToast();
 
   // Show and hide password MUI
   const [showPassword, setShowPassword] = useState(false);
@@ -45,17 +50,10 @@ const Signup = () => {
         userData
       );
 
-      if (response.status === 201) {
+      if (response.success === true) {
         const data = response.data;
         localStorage.setItem("token", data.token);
-
-        // setUser(data.user);
         navigate("/auth/verify-email");
-
-        // Clear form
-        // setName("");
-        // setEmail("");
-        // setPassword("");
       } else {
         console.log("Unexpected response:", response);
       }
