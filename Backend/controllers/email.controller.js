@@ -38,8 +38,8 @@ export const verifyUserEmail = async (req, res, next) => {
       session.endSession();
       return res.status(401).json({
         success: false,
-        message: "Invalid token",
-        errorCode: "INVALID_TOKEN",
+        message: "OTP has not matched",
+        errorCode: "INVALID_OTP",
       });
     }
 

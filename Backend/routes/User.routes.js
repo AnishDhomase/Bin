@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post(
   "/register",
-  rateLimiter(60 * MINUTE, 5),
+  // rateLimiter(60 * MINUTE, 5),
   [
     body("email").isEmail().withMessage("Invalid email"),
     body("name")

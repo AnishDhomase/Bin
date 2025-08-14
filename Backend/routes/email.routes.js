@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post(
   "/verify",
-  rateLimiter(MINUTE, 5),
+  // rateLimiter(MINUTE, 5),
   [
     body("token")
       .isLength({ min: 6, max: 6 })
@@ -22,7 +22,7 @@ router.post(
 
 router.post(
   "/verification-token",
-  rateLimiter(5 * MINUTE, 2),
+  // rateLimiter(5 * MINUTE, 2),
   authenticateUser,
   emailController.sendVerificationTokenToUserEmail
 );

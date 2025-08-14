@@ -22,7 +22,7 @@ export const registerUser = async (req, res, next) => {
 
       return res.status(400).json({
         success: false,
-        message: "User already exists",
+        message: "Account with this email already exists",
         errorCode: "USER_ALREADY_EXISTS",
       });
     }
