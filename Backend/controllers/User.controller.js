@@ -185,7 +185,7 @@ export const editEmail = async (req, res, next) => {
     if (req.user.isEmailVerified) {
       return res.status(400).json({
         success: false,
-        message: "Email is already verified. Cannot change email.",
+        message: "Email is already verified.",
         errorCode: "EMAIL_ALREADY_VERIFIED",
       });
     }
@@ -194,7 +194,7 @@ export const editEmail = async (req, res, next) => {
     if (req.user.email === newEmail) {
       return res.status(400).json({
         success: false,
-        message: "Same email is provided. Cannot change email.",
+        message: "Same email is provided.",
         errorCode: "SAME_EMAIL",
       });
     }

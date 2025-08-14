@@ -52,7 +52,7 @@ router.get(
 
 router.patch(
   "/email",
-  rateLimiter(60 * MINUTE, 5),
+  // rateLimiter(60 * MINUTE, 5),
   [body("email").isEmail().withMessage("Invalid email"), expressValidator],
   authenticateUser,
   userController.editEmail

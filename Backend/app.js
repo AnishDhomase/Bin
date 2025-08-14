@@ -6,7 +6,10 @@ import emailRouter from "./routes/email.routes.js";
 import assetRouter from "./routes/asset.routes.js";
 import { dbConnect } from "./db/db.js";
 import { MINUTE, rateLimiter } from "./middlewares/rate-limiter.middleware.js";
-import { CRON_JOB_AUTO_DELETE_TRASH_TIME, cronJobForAutoDeletionFromRecycleBinParmanently } from "./models/fileFolder.model.js";
+import {
+  CRON_JOB_AUTO_DELETE_TRASH_TIME,
+  cronJobForAutoDeletionFromRecycleBinParmanently,
+} from "./models/fileFolder.model.js";
 
 const app = express();
 
@@ -14,8 +17,10 @@ const app = express();
 dbConnect();
 
 // Cron-job
-setInterval(cronJobForAutoDeletionFromRecycleBinParmanently, CRON_JOB_AUTO_DELETE_TRASH_TIME);
-
+setInterval(
+  cronJobForAutoDeletionFromRecycleBinParmanently,
+  CRON_JOB_AUTO_DELETE_TRASH_TIME
+);
 
 // Middlewares
 // app.use(cors()); // Cross-Origin Resource Sharing
@@ -24,7 +29,7 @@ app.use(
   cors({
     origin: allowedOrigin,
     credentials: true, // allow cookies/auth headers
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
