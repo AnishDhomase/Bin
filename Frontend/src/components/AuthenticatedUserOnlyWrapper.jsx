@@ -19,9 +19,6 @@ const AuthenticatedUserOnlyWrapper = ({ children }) => {
     }
 
     const fetchProfile = async () => {
-      // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-      // await delay(5000); // Wait for 5 second
-
       axios
         .get(`${import.meta.env.VITE_BASE_URL}/users/profile`, {
           headers: {
