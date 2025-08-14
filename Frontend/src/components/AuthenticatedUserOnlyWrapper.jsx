@@ -29,7 +29,7 @@ const AuthenticatedUserOnlyWrapper = ({ children }) => {
           },
         })
         .then((response) => {
-          if (response.status === 200) {
+          if (response.data.success === true) {
             setUser(response.data.data);
           }
         })
