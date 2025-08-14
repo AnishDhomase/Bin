@@ -9,6 +9,7 @@ const Loading = () => {
         hue={0}
         forceHoverState={false}
       />
+      <span className="absolute">Loading ...</span>
     </div>
   );
 };

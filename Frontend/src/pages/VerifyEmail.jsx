@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import SignupSigninOutline from "../components/SignupSigninOutline";
 import { Button, TextField } from "@mui/material";
 import { textFieldSx } from "../utils/MUICustomStyles";
@@ -7,13 +7,26 @@ import { useContext } from "react";
 import { UserDataContext } from "../contexts/UserContext";
 import axios from "axios";
 import { useState } from "react";
+import { useToast } from "../contexts/ToastContext";
+import ToastAuthenticated from "../components/Toast/ToastAuthenticated";
+import ToastOTPSent from "../components/Toast/ToastOTPSent";
+import ToastError from "../components/Toast/ToastError";
+import { delay } from "../utils/delay";
+import ToastEmailVerified from "../components/Toast/ToastEmailVerified";
 
 const VerifyEmail = () => {
   const navigate = useNavigate();
   const { user } = useContext(UserDataContext);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [otp, setOtp] = useState("");
+  const toast = useToast();
+  useEffect(() => {
+    if (user.isEmailVerified) {
+      navigate(`/dashboard/${user.name}`);
+      return;
+    }
+  }, [navigate, user]);
 
   const handleOtpChange = (e) => {
     if (e.target.value.length > 6) return;
@@ -22,13 +35,22 @@ const VerifyEmail = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading(true);
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await delay(1000); // Wait for 1 second
 
     try {
-      const userData = { token: otp };
+      if (otp?.length !== 6) {
+        toast.open(
+          <ToastError
+            headline="Invalid OTP"
+            subHeadline="OTP should be of length 6"
+          />
+        );
+        return;
+      }
 
+      const userData = { token: otp };
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/email/verify`,
         userData,
@@ -39,24 +61,37 @@ const VerifyEmail = () => {
           },
         }
       );
+      console.log(response.data);
+      if (response.data.success === true) {
+        toast.open(<ToastEmailVerified />);
 
-      if (response.status === 200) {
+        await delay(2000); // Wait for 2 second
         navigate(`/dashboard/${user.name}`);
         return;
       } else {
-        console.log("Unexpected response:", response);
+        console.log("");
       }
     } catch (error) {
-      console.error("Registration failed:", error);
+      console.log(error.response.data);
+      const errCode = error.response.data.errorCode;
+      const errSubHeadlineMsg = error.response.data.message;
+      let errHeadlineMsg =
+        errCode === "VALIDATION_ERROR" ? "Validation Error" : "Incorrect OTP";
+      errHeadlineMsg =
+        errCode === "EMAIL_ALREADY_VERIFIED"
+          ? "Email verified"
+          : errHeadlineMsg;
+      toast.open(
+        <ToastError headline={errHeadlineMsg} subHeadline={errSubHeadlineMsg} />
+      );
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   const handleResendOtp = async () => {
     try {
       setIsResending(true);
-      const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       await delay(1000); // Wait for 1 second
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/email/verification-token`,
@@ -69,14 +104,23 @@ const VerifyEmail = () => {
         }
       );
 
-      if (response.status === 200) {
-        alert("successfully resent otp!");
+      if (response.data.success === true) {
+        toast.open(<ToastOTPSent />);
       } else {
-        alert("problem in resending otp!");
-        console.log("Unexpected response:", response);
+        console.log("");
       }
     } catch (error) {
-      console.error("Registration failed:", error);
+      console.log(error.response.data);
+      const errCode = error.response.data.errorCode;
+      const errSubHeadlineMsg = error.response.data.message;
+      let errHeadlineMsg =
+        errCode === "SEND_VERIFICATION_TOKEN_FAILED"
+          ? "OTP resend failed"
+          : "Email verified";
+
+      toast.open(
+        <ToastError headline={errHeadlineMsg} subHeadline={errSubHeadlineMsg} />
+      );
     } finally {
       setIsResending(false);
     }
@@ -110,7 +154,7 @@ const VerifyEmail = () => {
             type="submit"
             variant="contained"
             disableElevation
-            disabled={isLoading || isResending}
+            disabled={loading || isResending}
             sx={{
               textTransform: "capitalize",
               fontSize: "18px",
@@ -130,7 +174,7 @@ const VerifyEmail = () => {
               },
             }}
           >
-            {isLoading ? "Verifying ..." : "Verify"}
+            {loading ? "Verifying ..." : "Verify"}
           </Button>
         </form>
 
@@ -139,12 +183,12 @@ const VerifyEmail = () => {
           <button
             // className="text-[#4294FF] cursor-pointer font-medium"
             className={`text-[#4294FF] font-medium ${
-              isLoading || isResending
+              loading || isResending
                 ? "opacity-50 cursor-not-allowed"
                 : "cursor-pointer"
             }`}
             onClick={handleResendOtp}
-            disabled={isLoading || isResending}
+            disabled={loading || isResending}
           >
             {isResending ? "Resending ..." : "Resend"}
           </button>
@@ -152,7 +196,7 @@ const VerifyEmail = () => {
       </SignupSigninOutline>
       <Link to={`/dashboard/${user.name}`}>
         <Button
-          disabled={isLoading || isResending}
+          disabled={loading || isResending}
           variant="text"
           sx={{
             position: "fixed",

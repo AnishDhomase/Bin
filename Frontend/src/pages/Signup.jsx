@@ -7,8 +7,8 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 import { GoogleLogin, googleLogout, useGoogleLogin } from "@react-oauth/google";
-import { useState } from "react";
-import { IconButton, InputAdornment } from "@mui/material";
+import { lazy, useState } from "react";
+import { CircularProgress, IconButton, InputAdornment } from "@mui/material";
 
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -17,6 +17,9 @@ import { useToast } from "../contexts/ToastContext";
 import ToastAuthenticated from "../components/Toast/ToastAuthenticated";
 import ToastEmailVerified from "../components/Toast/ToastEmailVerified";
 import ToastError from "../components/Toast/ToastError";
+import { isvalidEmail } from "../utils/validateEmail";
+import ToastOTPSent from "../components/Toast/ToastOTPSent";
+import { delay } from "../utils/delay";
 
 const headline = "Create account";
 
@@ -25,8 +28,9 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const { setUser } = useUser();
+  const navigate = useNavigate();
   const toast = useToast();
 
   // Show and hide password MUI
@@ -39,10 +43,40 @@ const Signup = () => {
     event.preventDefault();
   };
 
+  // Submit Form handler
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-
     try {
+      setLoading(true);
+      await delay(1000); // Wait for 1 second
+
+      if (name?.length < 2) {
+        toast.open(
+          <ToastError
+            headline="Name Too Small"
+            subHeadline="Name should be at least of length 2"
+          />
+        );
+        return;
+      }
+      if (!isvalidEmail(email)) {
+        toast.open(
+          <ToastError
+            headline="Invalid Email"
+            subHeadline="Incorrect Email format"
+          />
+        );
+        return;
+      }
+      if (password?.length < 6) {
+        toast.open(
+          <ToastError
+            headline="Password Too Small"
+            subHeadline="Password should be at least of length 6"
+          />
+        );
+        return;
+      }
       const userData = { name, email, password };
 
       const response = await axios.post(
@@ -50,15 +84,33 @@ const Signup = () => {
         userData
       );
 
-      if (response.success === true) {
-        const data = response.data;
-        localStorage.setItem("token", data.token);
+      console.log(response.data);
+      if (response.data.success === true) {
+        toast.open(<ToastAuthenticated />);
+        const { token } = response.data.data;
+        localStorage.setItem("token", token);
+
+        await delay(2000); // Wait for 1 second
         navigate("/auth/verify-email");
+
+        await delay(2000); // Wait for 1 second
+        toast.open(<ToastOTPSent />);
       } else {
-        console.log("Unexpected response:", response);
+        console.log("Error");
       }
     } catch (error) {
-      console.error("Registration failed:", error);
+      console.log(error.response.data);
+      const errCode = error.response.data.errorCode;
+      const errSubHeadlineMsg = error.response.data.message;
+      const errHeadlineMsg =
+        errCode === "VALIDATION_ERROR"
+          ? "Validation Error"
+          : "User already exists";
+      toast.open(
+        <ToastError headline={errHeadlineMsg} subHeadline={errSubHeadlineMsg} />
+      );
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -121,6 +173,7 @@ const Signup = () => {
           }}
         />
         <Button
+          disabled={loading}
           type="submit"
           variant="contained"
           disableElevation
@@ -134,19 +187,30 @@ const Signup = () => {
             "&:hover": {
               backgroundColor: "#376CFB",
             },
+            "&.Mui-disabled": {
+              backgroundColor: "rgba(66, 148, 255, 0.5)", // 50% transparent
+              color: "rgba(255, 255, 255, 0.7)", // lighter text
+            },
           }}
         >
-          Register
+          {!loading ? (
+            "Register"
+          ) : (
+            <div className="flex content-center">
+              <CircularProgress size="31px" color="inherit" />
+            </div>
+          )}
         </Button>
       </form>
 
       <footer className="px-5 text-white flex justify-center gap-1 mt-1">
         Already have an account?
-        <Link to="/auth/signin">
-          <button className="text-[#4294FF] cursor-pointer font-medium">
-            Signin
-          </button>
-        </Link>
+        <button
+          disabled={loading}
+          className="text-[#4294FF] cursor-pointer font-medium"
+        >
+          <Link to="/auth/signin">Signin</Link>
+        </button>
       </footer>
 
       {/* Google signin */}

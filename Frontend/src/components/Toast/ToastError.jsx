@@ -1,8 +1,8 @@
 import React from "react";
 
 const ToastError = ({
-  hedline = "Action Failed",
-  subHeadline = "This action could not be completed.",
+  headline = "Action Failed",
+  subHeadline = "Action failed due to server error",
 }) => {
   return (
     <div className="flex gap-3 p-4 items-center bg-[#FFEAE9]">
@@ -12,7 +12,7 @@ const ToastError = ({
         className="w-9 h-9 flex-shrink-0"
       />
       <div>
-        <h3 className="font-semibold text-[#2c1b1a]">{hedline}</h3>
+        <h3 className="font-semibold text-[#2c1b1a]">{headline}</h3>
         <p className="text-sm text-[#2c1b1a95]">{subHeadline}</p>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { UserDataContext, useUser } from "../contexts/UserContext";
 import { useEffect } from "react";
 import axios from "axios";
+import Loading from "../Animations/Loading";
 
 const AuthenticatedUserOnlyWrapper = ({ children }) => {
   const token = localStorage.getItem("token");
@@ -29,7 +30,7 @@ const AuthenticatedUserOnlyWrapper = ({ children }) => {
         })
         .then((response) => {
           if (response.status === 200) {
-            setUser(response.data);
+            setUser(response.data.data);
           }
         })
         .catch(() => {
@@ -45,11 +46,7 @@ const AuthenticatedUserOnlyWrapper = ({ children }) => {
   }, [token, user, navigate, setUser, isLoading, setIsLoading]);
 
   if (isLoading) {
-    return (
-      <div className="text-white text-3xl bg-[#b3404035] h-screen w-screen ">
-        Verifying You...
-      </div>
-    );
+    return <Loading />;
   }
   return <>{children}</>;
 };
