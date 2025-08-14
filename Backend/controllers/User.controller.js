@@ -200,9 +200,10 @@ export const editEmail = async (req, res, next) => {
     }
 
     // Check if new email is already taken
-    const isExistingEmail = await UserModel.findOne({ newEmail }).session(
-      session
-    );
+    const isExistingEmail = await UserModel.findOne({
+      email: newEmail,
+    }).session(session);
+
     if (isExistingEmail) {
       await session.abortTransaction();
       session.endSession();
