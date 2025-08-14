@@ -5,7 +5,9 @@ import {
   emailVerifiedUser,
 } from "../middlewares/auth.middleware.js";
 import { body, param, query } from "express-validator";
-import multerUploadMiddleware from "../middlewares/upload.middleware.js";
+import multerUploadMiddleware, {
+  multerErrorMiddleware,
+} from "../middlewares/multer.middleware.js";
 import { expressValidator } from "../middlewares/bodyValidator.middleware.js";
 import mongoose from "mongoose";
 import { MINUTE, rateLimiter } from "../middlewares/rate-limiter.middleware.js";
@@ -31,6 +33,7 @@ router.post(
   authenticateUser,
   emailVerifiedUser,
   multerUploadMiddleware.single("file"),
+  multerErrorMiddleware,
   assetController.fileUpload
 );
 

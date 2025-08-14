@@ -3,6 +3,7 @@ import { uploadToCloudinary } from "../libs/cloudinaryHelper.js";
 import CloudinaryAssetModel from "../models/cloudinaryAsset.model.js";
 import FileFolderModel from "../models/fileFolder.model.js";
 import { cloudinary } from "../configs/cloudinary.js";
+import mongoose from "mongoose";
 
 const fileUpload = async (req, res) => {
   const session = await mongoose.startSession();
@@ -123,6 +124,7 @@ const fileUpload = async (req, res) => {
       data: newFile,
     });
   } catch (error) {
+    console.log(error);
     await session.abortTransaction();
 
     //Cleanup Cloudinary asset if it was uploaded but DB failed

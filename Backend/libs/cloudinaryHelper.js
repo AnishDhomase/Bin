@@ -2,7 +2,9 @@ import { cloudinary } from "../configs/cloudinary.js";
 
 const uploadToCloudinary = async (filePath) => {
   try {
-    const result = await cloudinary.uploader.upload(filePath);
+    const result = await cloudinary.uploader.upload(filePath, {
+      resource_type: "auto",
+    });
 
     return {
       url: result.secure_url,
@@ -12,7 +14,7 @@ const uploadToCloudinary = async (filePath) => {
       original_filename: result.original_filename, //fileName
     };
   } catch (error) {
-    console.error("Error while file uploading to cloudinary", error);
+    console.log(error);
     throw new Error("Error while file uploading to cloudinary");
   }
 };
