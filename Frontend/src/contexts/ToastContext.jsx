@@ -25,7 +25,7 @@ const ToastContext = ({ children }) => {
   return (
     <ToastDataContext.Provider value={{ open, close }}>
       {children}
-      <div className="space-y-3 fixed bottom-4 right-4 z-50">
+      <div className="space-y-3 fixed bottom-4 right-4 z-5000">
         {toasts.map(({ id, component, timeout, closing }) => (
           <div
             key={id}

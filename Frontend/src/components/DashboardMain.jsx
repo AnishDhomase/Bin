@@ -45,7 +45,7 @@ const DashboardMain = () => {
       // await new Promise((resolve) => setTimeout(resolve, 200));
       await delay(200);
 
-      const parentId = directory.length === 0 ? null : directory.at(-1)?._id;
+      const parentId = getParentIdFromDirectory(directory);
       const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/asset`,
         {
@@ -176,6 +176,45 @@ const DashboardMain = () => {
     }
   }
 
+  async function handleNewFileUpload(newFileData) {
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/asset/file`,
+        newFileData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      console.log(response.data);
+      if (response.data.success === true) {
+        fetchFiles();
+        await delay(2300); // Wait for 1 second
+        toast.open(
+          <ToastAuthenticated
+            headline="File uploaded"
+            subHeadline="We've uploaded your file"
+          />
+        );
+      } else {
+        console.log("Error");
+      }
+    } catch (error) {
+      console.log(error.response.data);
+      const errSubHeadlineMsg = error.response.data.message;
+      const errHeadlineMsg = "Error uploading file";
+      toast.open(
+        <ToastError headline={errHeadlineMsg} subHeadline={errSubHeadlineMsg} />
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <main className="p-8">
       {/* back Button and Heading of page */}
@@ -243,26 +282,30 @@ const DashboardMain = () => {
                 }
               >
                 {/* <FileFolderLogo isFolder={false} /> */}
-                <h1 className="text-[#376CFB] font-semibold text-3xl text-center mt-1">
+                <h1 className="text-[#376CFB] font-semibold text-2xl text-center">
                   Upload File
                 </h1>
-                <div className="text-center space-y-2 my-7">
+
+                <div className="text-center mt-8 mb-3">
                   <p className="text-gray-300 text-base">
                     Allowed types:{" "}
                     <span className="font-medium text-white">Images</span> (jpg,
-                    png, gif, bmp),
+                    jpeg, png, gif, svg),
                     <span className="font-medium text-white">
                       {" "}
                       Documents
                     </span>{" "}
-                    (pdf, doc, docx, txt).
+                    (pdf).
                   </p>
-                  <p className="text-gray-300 text-base">
+                  <p className="text-gray-300 text-base mt-2">
                     Max file size:{" "}
                     <span className="font-medium text-white">2MB</span>
                   </p>
                 </div>
-                <FileUpload />
+                <FileUpload
+                  directory={directory}
+                  handleNewFileUpload={handleNewFileUpload}
+                />
               </MyModal>
 
               {/* Add new folder Modal */}
@@ -323,6 +366,22 @@ const DashboardMain = () => {
             </div>
           )}
 
+          {/* Title: Name, Last Modified, Size */}
+          {(files.length !== 0 || searchedForFiles.length !== 0) && (
+            <div className="flex flex-col gap-2 w-3/4 bg-gray-800 mx-auto mt-4 -mb-2">
+              <li className="group flex items-center text-white gap-2 bg-gray-900 justify-between py-2 px-1 pl-3 rounded-lg">
+                <span className="relative flex items-center text-white w-[400px] gap-2 text-[13px]">
+                  Name
+                </span>
+                <span className="flex items-center text-white gap-2 min-w-[140px] text-[13px]">
+                  Last Modified
+                </span>
+                <span className="flex items-center text-white gap-2  min-w-[65px] text-[13px]">
+                  Size
+                </span>
+              </li>
+            </div>
+          )}
           {/* If no searchText allow drag and drop */}
           {searchText.length === 0 && (
             <ul className="flex flex-col gap-2 w-3/4 bg-gray-800 mx-auto mt-4">
@@ -397,4 +456,9 @@ function collapseBreadcrumbPath(fullPath) {
   const trailing = fullPath.endsWith("/") ? "/" : "";
 
   return `${leading}${first}/../${last}${trailing}`;
+}
+
+export function getParentIdFromDirectory(directory) {
+  const parentId = directory.length === 0 ? null : directory.at(-1)?._id;
+  return parentId;
 }
