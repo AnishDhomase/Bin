@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import FileFolder, { FileFolderLogo } from "../components/FileFolder";
 import Search from "../components/Search";
@@ -14,38 +14,83 @@ import { FilesFoldersDataContext } from "../contexts/FilesFoldersContext";
 import { IconButton } from "@mui/material";
 import { getBreadcrumbPath } from "../utils/breadcrumbPath";
 import { useToast } from "../contexts/ToastContext";
+import { delay } from "../utils/delay";
+import axios from "axios";
+import ToastError from "./Toast/ToastError";
+import ToastAuthenticated from "./Toast/ToastAuthenticated";
 
 const DashboardMain = () => {
-  const { allDBFiles, setAllDBFiles, toggleStar, toggleTrash } = useContext(
-    FilesFoldersDataContext
-  );
+  const {
+    // allDBFiles,
+    // setAllDBFiles,
+    toggleStar,
+    toggleTrash,
+  } = useContext(FilesFoldersDataContext);
   const [directory, setDirectory] = useState([]);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [searchedForFiles, setSearchedForFiles] = useState([]);
+  const toast = useToast();
 
+  // When directory changes make searchText empty
   useEffect(() => {
     setSearchText("");
   }, [directory]);
 
-  useEffect(() => {
-    const fetchFiles = async () => {
-      setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 200));
-      setFiles(() =>
-        allDBFiles.filter(
-          (file) =>
-            file.parentId ===
-              (directory.length === 0 ? null : directory.at(-1)?.id) &&
-            !file.isTrash
-        )
-      );
-      setLoading(false);
-    };
+  // Load content in current directory
+  const fetchFiles = useCallback(async () => {
+    setLoading(true);
+    try {
+      // await new Promise((resolve) => setTimeout(resolve, 200));
+      await delay(200);
 
+      const parentId = directory.length === 0 ? null : directory.at(-1)?._id;
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/asset`,
+        {
+          params: parentId ? { parentId } : {},
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      console.log(response.data);
+      if (response.data.success === true) {
+        const fetchedItems = response.data.data;
+        setFiles(
+          () => fetchedItems
+          // allDBFiles.filter(
+          //   (file) =>
+          //     file.parentId ===
+          //       (directory.length === 0 ? null : directory.at(-1)?.id) &&
+          //     !file.isTrash
+          // )
+        );
+      } else {
+        console.log("");
+      }
+    } catch (error) {
+      console.log(error.response.data);
+
+      const errSubHeadlineMsg = error.response.data.message;
+      const errHeadlineMsg = "Unable to fetch";
+      toast.open(
+        <ToastError headline={errHeadlineMsg} subHeadline={errSubHeadlineMsg} />
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [directory]);
+
+  useEffect(() => {
     fetchFiles();
-  }, [directory, allDBFiles]);
+  }, [
+    directory,
+    fetchFiles,
+    // toast,
+    // allDBFiles
+  ]);
 
   function handleDragEnd(event) {
     const { active, over } = event;
@@ -58,38 +103,77 @@ const DashboardMain = () => {
     if (draggingfileFolderId === droppingFolderId) return;
 
     // Check for droppingFolder folder/file already contains draggingfileFolder
-    const draggingItem = allDBFiles.find(
-      (item) => item.id === draggingfileFolderId
-    );
-    const itemsInDroppingFolder = allDBFiles.filter(
-      (item) =>
-        item.parentId === droppingFolderId &&
-        item.isFolder === draggingItem.isFolder
-    );
-    const isItemAlreadyExistInDroppingFolder = itemsInDroppingFolder.some(
-      (item) => item.name === draggingItem.name
-    );
-    if (isItemAlreadyExistInDroppingFolder)
-      return alert(
-        `Can't move "${draggingItem.name}" ${
-          draggingItem.isFolder ? "Folder" : "File"
-        } because such file already exist in it.`
-      );
+    // const draggingItem = allDBFiles.find(
+    //   (item) => item.id === draggingfileFolderId
+    // );
+    // const itemsInDroppingFolder = allDBFiles.filter(
+    //   (item) =>
+    //     item.parentId === droppingFolderId &&
+    //     item.isFolder === draggingItem.isFolder
+    // );
+    // const isItemAlreadyExistInDroppingFolder = itemsInDroppingFolder.some(
+    //   (item) => item.name === draggingItem.name
+    // );
+    // if (isItemAlreadyExistInDroppingFolder)
+    //   return alert(
+    //     `Can't move "${draggingItem.name}" ${
+    //       draggingItem.isFolder ? "Folder" : "File"
+    //     } because such file already exist in it.`
+    //   );
 
-    setAllDBFiles((files) =>
-      files.map((file) =>
-        file.id === draggingfileFolderId
-          ? {
-              ...file,
-              parentId: droppingFolderId,
-            }
-          : file
-      )
-    );
+    // Update parent of draggingfileFolder in db
+    // setAllDBFiles((files) =>
+    //   files.map((file) =>
+    //     file.id === draggingfileFolderId
+    //       ? {
+    //           ...file,
+    //           parentId: droppingFolderId,
+    //         }
+    //       : file
+    //   )
+    // );
   }
 
-  function handleNewFolderAddition(newFolder) {
-    setAllDBFiles((allDBFiles) => [...allDBFiles, newFolder]);
+  async function handleNewFolderAddition(newFolderData) {
+    // setAllDBFiles((allDBFiles) => [...allDBFiles, newFolder]);
+    try {
+      setLoading(true);
+      // await delay(2000); // Wait for 1 second
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/asset/folder`,
+        newFolderData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log(response.data);
+      if (response.data.success === true) {
+        fetchFiles();
+        await delay(2300); // Wait for 1 second
+        toast.open(
+          <ToastAuthenticated
+            headline="Folder Created"
+            subHeadline="New folder created"
+          />
+        );
+      } else {
+        console.log("Error");
+      }
+    } catch (error) {
+      console.log(error.response.data);
+      const errSubHeadlineMsg = error.response.data.message;
+      const errHeadlineMsg = "Folder creation failed";
+      toast.open(
+        <ToastError headline={errHeadlineMsg} subHeadline={errSubHeadlineMsg} />
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

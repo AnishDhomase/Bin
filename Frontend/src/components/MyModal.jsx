@@ -89,6 +89,14 @@ export default function MyModal({ children, btn, width = 450 }) {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
         sx={{ outline: 0 }}
+        slotProps={{
+          backdrop: {
+            sx: {
+              backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent dark
+              backdropFilter: "blur(16px)", // blur effect
+            },
+          },
+        }}
       >
         <Box sx={{ ...style, outline: 0, width: width }}>
           {childrenWithClose}

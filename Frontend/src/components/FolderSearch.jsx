@@ -4,6 +4,9 @@ import { textFieldSx } from "../utils/MUICustomStyles";
 import Button from "@mui/material/Button";
 import { generateUniqueId } from "../utils/generateUniqueId";
 import { getBreadcrumbPath } from "../utils/breadcrumbPath";
+import { useToast } from "../contexts/ToastContext";
+import ToastError from "./Toast/ToastError";
+import { delay } from "../utils/delay";
 
 const FolderSearch = ({
   filesFoldersInCurrDir,
@@ -13,54 +16,97 @@ const FolderSearch = ({
   inputRef,
 }) => {
   const [newFolder, setNewFolder] = useState("");
-  const [isError, setIsError] = useState(false);
+  const [loading, setLoading] = useState(false);
+  // const [isError, setIsError] = useState(false);
+  const toast = useToast();
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!newFolder) return;
+    setLoading(true);
+    if (!newFolder) {
+      toast.open(
+        <ToastError
+          headline="Empty Folder name"
+          subHeadline="Folder name should not be empty"
+        />
+      );
+      return;
+    }
     const newFolderData = {
       name: newFolder,
-      id: generateUniqueId(),
-      parentId: directory.length !== 0 ? directory.at(-1).id : null,
-      isFolder: true,
+      parentId: directory.length !== 0 ? directory.at(-1)._id : null,
+      // id: generateUniqueId(),
+      // isFolder: true,
     };
     handleNewFolderAddition(newFolderData);
+    await delay(2000);
+    setLoading(false);
     closeModal();
   }
 
   function handleChange(e) {
     const newFolderName = e.target.value;
     setNewFolder(newFolderName);
-    const exists = filesFoldersInCurrDir.some((fileFolder) => {
-      if (!fileFolder.isFolder) return false;
-      return fileFolder.name === newFolderName;
-    });
-    setIsError(exists);
+    // const exists = filesFoldersInCurrDir.some((fileFolder) => {
+    //   if (!fileFolder.isFolder) return false;
+    //   return fileFolder.name === newFolderName;
+    // });
+    // setIsError(exists);
   }
   return (
     <form onSubmit={handleSubmit} className="mt-10 flex flex-col gap-2">
       <TextField
+        disabled={loading}
         fullWidth
         required
-        error={isError}
         value={newFolder}
         inputRef={inputRef}
         onChange={handleChange}
-        helperText={
-          isError
-            ? `Folder "${newFolder}" already exists in ${getBreadcrumbPath(
-                directory
-              )}`
-            : ""
-        }
         label="Folder name"
         variant="standard"
         placeholder="Enter folder name"
-        sx={textFieldSx}
+        sx={{
+          input: {
+            fontSize: "20px",
+            color: "#ffffff",
+            WebkitTextFillColor: "#ffffff", // fixes color override in Chrome for disabled inputs
+          },
+          "input.Mui-disabled": {
+            color: "#ffffff",
+            WebkitTextFillColor: "#ffffff",
+            opacity: 1, // remove MUI dimming
+          },
+          label: {
+            fontSize: "20px",
+            color: "#4294FF",
+            "&.Mui-focused": {
+              color: "#4294FF",
+            },
+          },
+          ".MuiInputLabel-root.Mui-disabled": {
+            color: "#4294FF",
+            opacity: 1,
+          },
+          "& .MuiInput-underline:before": {
+            borderBottomColor: "#ffffff",
+          },
+          "& .MuiInput-underline:hover:before": {
+            borderBottomColor: "#4294FF",
+          },
+          "& .MuiInput-underline:after": {
+            borderBottomColor: "#4294FF",
+          },
+          "& .MuiInput-underline.Mui-disabled:before": {
+            borderBottomColor: "#ffffff", // same as enabled
+            borderBottomStyle: "solid",
+          },
+        }}
       />
+
       <Button
         fullWidth
-        disabled={isError}
+        // disabled={isError}
+        disabled={loading}
         type="submit"
         variant="contained"
         disableElevation
@@ -76,13 +122,13 @@ const FolderSearch = ({
             backgroundColor: "#376CFB",
           },
           "&.Mui-disabled": {
-            backgroundColor: "#48494d", // Disabled background color
+            backgroundColor: "#4294ffd7", // Disabled background color
             color: "#e0e0e0", // Disabled text color
             cursor: "not-allowed", // Optional: Change cursor
           },
         }}
       >
-        Create
+        {!loading ? "Create" : "Creating ..."}
       </Button>
     </form>
   );
