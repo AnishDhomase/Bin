@@ -13,6 +13,7 @@ import {
 import { useUser } from "../contexts/UserContext";
 import { useToast } from "../contexts/ToastContext";
 import ToastError from "./Toast/ToastError";
+import { useLocation } from "react-router";
 
 const style = {
   position: "absolute",
@@ -38,7 +39,9 @@ export default function MyModal({ children, btn, width = 450 }) {
   const inputRef = useRef(null);
   const { user } = useUser();
   const toast = useToast();
-
+  const location = useLocation();
+  const path = location.pathname.split("/");
+  const isAccountPageOpen = path.length === 4 && path[3] === "account";
   // Focus the input after modal opens
   useEffect(() => {
     if (open) {
@@ -62,7 +65,7 @@ export default function MyModal({ children, btn, width = 450 }) {
   // Clone the trigger node and inject onClick
   // Clone the trigger node and inject onClick
   let TriggerBtn;
-  if (user.isEmailVerified)
+  if (user.isEmailVerified || isAccountPageOpen)
     TriggerBtn = cloneElement(btn, { onClick: handleOpen });
   else TriggerBtn = cloneElement(btn, { onClick: handleUnVerifiedUser });
 
