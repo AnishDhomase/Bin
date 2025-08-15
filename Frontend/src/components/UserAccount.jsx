@@ -1,4 +1,4 @@
-import { CircularProgress, IconButton } from "@mui/material";
+import { Button, CircularProgress, IconButton } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useParams } from "react-router";
 import { useUser } from "../contexts/UserContext";
@@ -8,6 +8,10 @@ import { isvalidEmail } from "../utils/validateEmail";
 import axios from "axios";
 import ToastError from "./Toast/ToastError";
 import ToastAuthenticated from "./Toast/ToastAuthenticated";
+import MyModal from "./MyModal";
+import FileUpload from "./FileUpload";
+import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
+import LogoutModalContent from "./LogoutModalContent";
 
 const UserAccount = () => {
   let { username } = useParams();
@@ -117,15 +121,52 @@ const UserAccount = () => {
       </header>
       <header className="w-5/6 mx-auto mb-5">
         <main className="bg-gray-900 rounded-xl p-10">
-          <h1 className="text-white text-xl flex items-center gap-4">
-            <span className="h-10 w-10 border-2 rounded-full overflow-hidden flex items-center justify-center">
-              <img
-                src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg"
-                alt="Profile"
-                className="h-full w-full object-cover"
-              />
-            </span>
-            {user.name}
+          <h1 className="text-white text-xl flex items-center gap-4 justify-between">
+            <div className="text-white text-xl flex items-center gap-4">
+              <span className="h-10 w-10 border-2 rounded-full overflow-hidden flex items-center justify-center">
+                <img
+                  src="https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg"
+                  alt="Profile"
+                  className="h-full w-full object-cover"
+                />
+              </span>
+              {user.name}
+            </div>
+            {/* Logout Modal */}
+            <MyModal
+              width={550}
+              btn={
+                <Button
+                  variant="outlined"
+                  sx={{
+                    textTransform: "capitalize",
+                    display: "flex",
+                    justifyContent: "start",
+                    fontSize: "16px",
+                    color: "white",
+                    padding: "8px 15px",
+                    border: "2px solid #ffffff1a",
+                    height: "100%",
+                  }}
+                >
+                  Log Out
+                </Button>
+              }
+            >
+              <span className="mx-auto p-4 h-20 w-20 bg-[#B6013E] rounded-full overflow-hidden flex items-center justify-center">
+                <img
+                  src="/images/logout.png"
+                  className="h-full w-full object-cover"
+                />
+              </span>
+              <h1 className="mx-auto text-2xl font-semibold text-white mt-12">
+                Are you sure you want to log out?
+              </h1>
+              <h1 className="mx-auto text-gray-400 mt-2">
+                You will be asked to log in again to access your dashboard
+              </h1>
+              <LogoutModalContent />
+            </MyModal>
           </h1>
           <div className="border-1 border-gray-800 mt-5"></div>
           <h1 className="text-white text-xl flex items-center gap-5 mt-5 p-2">
@@ -158,6 +199,7 @@ const UserAccount = () => {
                     : "bg-transparent"
                 } text-gray-300 text-[18px]`}
               />
+              {/* Edit Email btn */}
               {!user.isEmailVerified && (
                 <>
                   {!isEditing ? (
@@ -194,6 +236,7 @@ const UserAccount = () => {
                   )}
                 </>
               )}
+              {/* Verify Email btn */}
               {!user.isEmailVerified && (
                 <Link to={`/auth/verify-email`} end>
                   <button className="bg-[#4294FF] cursor-pointer hover:bg-white hover:text-[#4294FF] border-2 border-white text-white text-[15px] rounded-2xl pl-4 pr-2 font-semibold">

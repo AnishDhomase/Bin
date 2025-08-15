@@ -31,7 +31,7 @@ const style = {
   justifyContent: "center",
 };
 
-export default function MyModal({ children, btn }) {
+export default function MyModal({ children, btn, width = 450 }) {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -87,7 +87,9 @@ export default function MyModal({ children, btn }) {
         aria-describedby="modal-modal-description"
         sx={{ outline: 0 }}
       >
-        <Box sx={{ ...style, outline: 0 }}>{childrenWithClose}</Box>
+        <Box sx={{ ...style, outline: 0, width: width }}>
+          {childrenWithClose}
+        </Box>
       </Modal>
     </div>
   );
