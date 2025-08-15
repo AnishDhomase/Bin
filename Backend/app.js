@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieparser from "cookie-parser";
-import userRouter from "./routes/user.routes.js";
+import userRouter from "./routes/User.routes.js";
 import emailRouter from "./routes/email.routes.js";
 import assetRouter from "./routes/asset.routes.js";
 import { dbConnect } from "./db/db.js";
