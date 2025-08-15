@@ -26,7 +26,7 @@ const FileFolder = ({
   isForFavTrashPage = false,
 }) => {
   const { setNodeRef: setDropRef } = useDroppable({
-    id: file.id,
+    id: file._id,
   });
 
   const {
@@ -35,7 +35,7 @@ const FileFolder = ({
     setNodeRef: setDragRef,
     transform,
   } = useDraggable({
-    id: file.id,
+    id: file._id,
   });
 
   const style = transform
@@ -74,8 +74,6 @@ const FileFolder = ({
     if (file.isFolder) setDropRef(node);
     setDragRef(node);
   };
-
-  // if (file.isTrash) return;
 
   return (
     <li
@@ -144,9 +142,11 @@ const FileFolder = ({
       </span>
 
       <span className="flex items-center text-white gap-2">
-        02/07/2003 - 17:15
+        {formatDate(file.updatedAt)}
       </span>
-      <span className="flex items-center text-white gap-2">50MB</span>
+      <span className="flex items-center text-white gap-2">
+        {file.isFolder ? "-" : "50MB"}
+      </span>
     </li>
   );
 };
@@ -171,4 +171,17 @@ function highlightText(text, query) {
       <React.Fragment key={index}>{part}</React.Fragment>
     )
   );
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+  const year = date.getFullYear();
+
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${day}/${month}/${year} - ${hours}:${minutes}`;
 }

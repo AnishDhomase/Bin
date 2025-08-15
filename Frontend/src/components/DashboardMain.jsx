@@ -178,6 +178,7 @@ const DashboardMain = () => {
 
   return (
     <main className="p-8">
+      {/* back Button and Heading of page */}
       <header className="w-5/6 mx-auto flex gap-2 mb-8 items-center justify-start">
         <IconButton
           aria-label="delete"
@@ -191,6 +192,8 @@ const DashboardMain = () => {
         {/* Title of page */}
         <h1 className="text-white text-2xl font-semibold">Home</h1>
       </header>
+
+      {/* Storage analytics */}
       <header className=" w-5/6 mx-auto mb-5">
         <main className="h-[250px] bg-gray-900 rounded-xl p-5">
           <h1 className="text-white text-xl">
@@ -198,8 +201,11 @@ const DashboardMain = () => {
           </h1>
         </main>
       </header>
+
+      {/* Main */}
       <main className="w-5/6 mx-auto bg-gray-800 py-10 rounded-xl">
         <div className="flex flex-col">
+          {/* Search bar + Upload File + Create Folder */}
           <section className="flex justify-between content-center gap-2 w-3/4 mx-auto items-center">
             <Search
               files={files}
@@ -323,7 +329,7 @@ const DashboardMain = () => {
               <DndContext onDragEnd={handleDragEnd}>
                 {files.map((file) => (
                   <FileFolder
-                    key={file.id}
+                    key={file._id}
                     file={file}
                     setDirectory={setDirectory}
                     toggleStar={toggleStar}
