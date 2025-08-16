@@ -77,6 +77,7 @@ const fileUpload = async (req, res) => {
       publicId: uploadedPublicId,
       format, //jpg
       resource_type, //image
+      downloadUrl,
     } = await uploadToCloudinary(req.file.path);
     publicId = uploadedPublicId;
 
@@ -97,6 +98,7 @@ const fileUpload = async (req, res) => {
           resource_type,
           mimetype,
           size,
+          downloadUrl,
         },
       ],
       { session }

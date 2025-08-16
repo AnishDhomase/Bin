@@ -6,8 +6,14 @@ const uploadToCloudinary = async (filePath) => {
       resource_type: "auto",
     });
 
+    const downloadUrl = cloudinary.url(result.public_id, {
+      resource_type: result.resource_type,
+      flags: "attachment",
+    });
+
     return {
       url: result.secure_url,
+      downloadUrl,
       publicId: result.public_id,
       format: result.format, //jpg
       resource_type: result.resource_type, //image

@@ -27,6 +27,10 @@ const CloudinaryAssetSchema = new mongoose.Schema(
       type: Number,
       required: true, // file size in bytes
     },
+    downloadUrl: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );
