@@ -63,6 +63,13 @@ const DashboardFav = () => {
       files.filter((item) => item._id !== fileFolderToToggle._id)
     );
   }
+
+  async function handleFileTrash(fileFolderToToggle) {
+    setFiles((files) =>
+      files.filter((item) => item._id !== fileFolderToToggle._id)
+    );
+  }
+
   // async function handleFileTrash(fileFolderToTrash) {
   //   setFiles((files) =>
   //     files.filter((item) => item._id !== fileFolderToTrash._id)
@@ -142,6 +149,7 @@ const DashboardFav = () => {
                   key={file.id}
                   file={file}
                   handleFileStar={handleFileStar}
+                  handleFileTrash={handleFileTrash}
                   searchText={searchText}
                   setSearchText={setSearchText}
                 />
@@ -165,6 +173,7 @@ const DashboardFav = () => {
                   key={file.id}
                   file={file}
                   handleFileStar={handleFileStar}
+                  handleFileTrash={handleFileTrash}
                   searchText={searchText}
                   setSearchText={setSearchText}
                 />
