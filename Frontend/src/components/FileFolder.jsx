@@ -6,6 +6,8 @@ import { formatFileSize } from "./FileUpload";
 import FilesFoldersContext, {
   FilesFoldersDataContext,
 } from "../contexts/FilesFoldersContext";
+import RestoreFromTrashIcon from "@mui/icons-material/RestoreFromTrash";
+import { Tooltip } from "@mui/material";
 export const FileFolderLogo = ({ isFolder, height = 30 }) => {
   return (
     <span className="min-w-[50px] flex justify-center">
@@ -25,8 +27,7 @@ const FileFolder = ({
   setDirectory,
   handleFileStar,
   handleFileTrash,
-  // toggleStar,
-  // toggleTrash,
+  isTrashPage = false,
   searchText = "",
   setSearchText,
   isForFavTrashPage = false,
@@ -106,8 +107,12 @@ const FileFolder = ({
       onMouseUp={handleMouseUp}
       className="group flex items-center text-white gap-2 bg-[#03081f6e] justify-between py-2 px-1 rounded-xl cursor-pointer hover:bg-[#1018289a]" //active:bg-[#66ff7011]
     >
+      {/* Icon and Name */}
       <span className="relative flex items-center text-white w-[400px] gap-2 text-[13px] font-semibold">
+        {/* Icon */}
         <FileFolderLogo isFolder={file.isFolder} />
+
+        {/* Name */}
         <span>
           {searchText?.length === 0 && truncateBaseName(file.name, 20)}
           {searchText?.length !== 0 && highlightText(file.name, searchText)}
@@ -118,25 +123,29 @@ const FileFolder = ({
           className="hidden group-hover:flex items-center pointer-events-none group-hover:pointer-events-auto absolute right-0"
           data-no-dnd="true"
         >
-          <IconButton
-            data-no-dnd="true"
-            onPointerDown={(e) => e.preventDefault()}
-            size="small"
-            sx={{
-              color: "white",
-              transition: "transform 200ms ease-in-out",
-              "&:hover": {
-                color: "#FFD700",
-              },
-            }}
-            onClick={(e) => handleStarToggle(e, file)}
-          >
-            {!file.isStarred ? (
-              <i className="ri-star-line text-gold text-[18px] font-thin"></i>
-            ) : (
-              <i className="ri-star-fill text-gold text-[18px] font-thin"></i>
-            )}
-          </IconButton>
+          {!isTrashPage && (
+            <IconButton
+              data-no-dnd="true"
+              onPointerDown={(e) => e.preventDefault()}
+              size="small"
+              sx={{
+                color: "white",
+                transition: "transform 200ms ease-in-out",
+                "&:hover": {
+                  color: "#FFD700",
+                },
+              }}
+              onClick={(e) => handleStarToggle(e, file)}
+            >
+              <Tooltip title={`${!file.isStarred ? "Star" : "Unstar"}`}>
+                {!file.isStarred ? (
+                  <i className="ri-star-line text-gold text-[18px] font-thin"></i>
+                ) : (
+                  <i className="ri-star-fill text-gold text-[18px] font-thin"></i>
+                )}
+              </Tooltip>
+            </IconButton>
+          )}
 
           <IconButton
             data-no-dnd="true"
@@ -146,19 +155,28 @@ const FileFolder = ({
               color: "white",
               transition: "transform 200ms ease-in-out",
               "&:hover": {
-                color: "#d43b3b",
+                color: !isTrashPage ? "#d43b3b" : "#3bd45e",
               },
             }}
             onClick={(e) => handleTrashToggle(e, file)}
           >
-            <i className="ri-delete-bin-line text-gold text-[18px] font-light"></i>
+            <Tooltip title={`${!isTrashPage ? "Delete" : "Restore"}`}>
+              {!isTrashPage ? (
+                <i className="ri-delete-bin-line text-gold text-[18px] font-light"></i>
+              ) : (
+                <RestoreFromTrashIcon sx={{ fontSize: 20 }} />
+              )}
+            </Tooltip>
           </IconButton>
         </div>
       </span>
 
+      {/* Updated At */}
       <span className="flex items-center text-gray-300 gap-2 min-w-[140px] text-[13px]">
         {formatDate(file.updatedAt)}
       </span>
+
+      {/* Size */}
       <span className="flex items-center text-gray-300 gap-2  min-w-[65px] text-[13px]">
         {file.isFolder ? "" : formatFileSize(file.cloudinaryAssetId.size)}
       </span>
