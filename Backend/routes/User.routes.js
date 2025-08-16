@@ -38,14 +38,14 @@ router.post(
 
 router.post(
   "/logout",
-  rateLimiter(60 * MINUTE, 20),
+  // rateLimiter(60 * MINUTE, 20),
   authenticateUser,
   userController.logoutUser
 );
 
 router.get(
   "/profile",
-  rateLimiter(MINUTE, 10),
+  // rateLimiter(MINUTE, 30),
   authenticateUser,
   userController.getUserProfile
 );

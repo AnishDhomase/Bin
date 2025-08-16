@@ -149,7 +149,7 @@ export const logoutUser = async (req, res, next) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to logout user",
+      message: "Failed to log out user",
       errorCode: "USER_LOGOUT_FAILED",
       error: error.message,
     });

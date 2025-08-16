@@ -17,7 +17,7 @@ const router = express.Router();
 // Upload file
 router.post(
   "/file",
-  rateLimiter(15 * MINUTE, 20),
+  // rateLimiter(15 * MINUTE, 20),
   [
     body("parentId")
       .optional({ nullable: true })
@@ -40,7 +40,7 @@ router.post(
 // Create folder
 router.post(
   "/folder",
-  rateLimiter(15 * MINUTE, 20),
+  // rateLimiter(15 * MINUTE, 20),
   [
     body("name").trim().notEmpty().withMessage("Name is required"),
     body("parentId")
@@ -101,7 +101,7 @@ router.patch(
 // get fileFolders
 router.get(
   "/",
-  rateLimiter(MINUTE, 30),
+  // rateLimiter(MINUTE, 30),
   [
     // parentId is optional but must be a valid MongoDB ObjectId if provided
     query("parentId").optional().isMongoId().withMessage("Invalid parentId"),
@@ -132,6 +132,33 @@ router.patch(
   authenticateUser,
   emailVerifiedUser,
   assetController.relocateFilesFolders
+);
+
+// get starred fileFolders
+router.get(
+  "/star",
+  // rateLimiter(MINUTE, 30),
+  authenticateUser,
+  emailVerifiedUser,
+  assetController.getFavFilesFolders
+);
+
+// get trash fileFolders
+router.get(
+  "/trash",
+  // rateLimiter(MINUTE, 30),
+  authenticateUser,
+  emailVerifiedUser,
+  assetController.getTrashFilesFolders
+);
+
+// get recent files
+router.get(
+  "/recent",
+  // rateLimiter(MINUTE, 30),
+  authenticateUser,
+  emailVerifiedUser,
+  assetController.getRecentFiles
 );
 
 export default router;

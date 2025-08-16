@@ -138,7 +138,7 @@ const fileUpload = async (req, res) => {
 
     res.status(500).json({
       success: false,
-      message: "Something went wrong while uploading file",
+      message: "Something went wrong",
       errorCode: "UPLOAD_FAILED",
       error: error.message,
     });
@@ -514,6 +514,99 @@ export const relocateFilesFolders = async (req, res, next) => {
   }
 };
 
+export const getFavFilesFolders = async (req, res, next) => {
+  try {
+    // Destructure request
+    const userId = req.user.id;
+
+    const items = await FileFolderModel.find({
+      userId,
+      isStarred: true,
+      isTrash: false,
+    })
+      .sort({ isFolder: -1, name: 1 }) // folders first, then files
+      .populate({
+        path: "cloudinaryAssetId",
+        select: "-publicId",
+      });
+
+    res.json({
+      success: true,
+      message: "Fav Files and folders fetched successfully",
+      data: items,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch fav files and folders",
+      errorCode: "FETCH_FAILED",
+      error: error.message,
+    });
+  }
+};
+
+export const getTrashFilesFolders = async (req, res, next) => {
+  try {
+    // Destructure request
+    const userId = req.user.id;
+
+    const items = await FileFolderModel.find({
+      userId,
+      isTrash: true,
+    })
+      .sort({ isFolder: -1, name: 1 }) // folders first, then files
+      .populate({
+        path: "cloudinaryAssetId",
+        select: "-publicId",
+      });
+
+    res.json({
+      success: true,
+      message: "Trash Files and folders fetched successfully",
+      data: items,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch trash files and folders",
+      errorCode: "FETCH_FAILED",
+      error: error.message,
+    });
+  }
+};
+
+export const getRecentFiles = async (req, res, next) => {
+  try {
+    // Destructure request
+    const userId = req.user.id;
+
+    const items = await FileFolderModel.find({
+      userId,
+      isTrash: false,
+      isFolder: false,
+    })
+      .sort({ updatedAt: -1 }) // latest first
+      .limit(5)
+      .populate({
+        path: "cloudinaryAssetId",
+        select: "-publicId",
+      });
+
+    res.json({
+      success: true,
+      message: "Recent Files fetched successfully",
+      data: items,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch recent files",
+      errorCode: "FETCH_FAILED",
+      error: error.message,
+    });
+  }
+};
+
 export default {
   fileUpload,
   folderCreate,
@@ -522,4 +615,7 @@ export default {
   changeName,
   getFilesFolders,
   relocateFilesFolders,
+  getFavFilesFolders,
+  getTrashFilesFolders,
+  getRecentFiles,
 };
