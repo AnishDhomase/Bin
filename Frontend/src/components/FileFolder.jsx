@@ -113,14 +113,93 @@ const FileFolder = ({
     >
       {/* Icon and Name */}
       <span className="relative flex items-center text-white w-[400px] gap-2 text-[13px] font-semibold">
-        {/* Icon */}
-        <FileFolderLogo isFolder={file.isFolder} />
+        {/* Tooltip preview for files */}
+        {!file.isFolder && (
+          <>
+            {/* Icon */}
+            <Tooltip
+              title={
+                file.cloudinaryAssetId.format !== "pdf" ? (
+                  <img
+                    src={file.cloudinaryAssetId.url}
+                    alt="Preview"
+                    style={{
+                      width: 100,
+                      height: 100,
+                      objectFit: "cover",
+                      borderRadius: 4,
+                    }}
+                  />
+                ) : (
+                  <iframe
+                    src={file.cloudinaryAssetId.url}
+                    width={100}
+                    height={100}
+                    style={{ border: "none", borderRadius: 4 }}
+                  />
+                )
+              }
+              followCursor
+              placement="top-start"
+              enterDelay={100}
+              leaveDelay={50}
+              arrow
+            >
+              <div>
+                <FileFolderLogo isFolder={file.isFolder} />
+              </div>
+            </Tooltip>
 
-        {/* Name */}
-        <span>
-          {searchText?.length === 0 && truncateBaseName(file.name, 20)}
-          {searchText?.length !== 0 && highlightText(file.name, searchText)}
-        </span>
+            {/* Name */}
+            <Tooltip
+              title={
+                file.cloudinaryAssetId.format !== "pdf" ? (
+                  <img
+                    src={file.cloudinaryAssetId.url}
+                    alt="Preview"
+                    style={{
+                      width: 100,
+                      height: 100,
+                      objectFit: "cover",
+                      borderRadius: 4,
+                    }}
+                  />
+                ) : (
+                  <iframe
+                    src={file.cloudinaryAssetId.url}
+                    width={100}
+                    height={100}
+                    style={{ border: "none", borderRadius: 4 }}
+                  />
+                )
+              }
+              followCursor
+              placement="top-start"
+              enterDelay={100}
+              leaveDelay={50}
+              arrow
+            >
+              <span>
+                {searchText?.length === 0 && truncateBaseName(file.name, 20)}
+                {searchText?.length !== 0 &&
+                  highlightText(file.name, searchText)}
+              </span>
+            </Tooltip>
+          </>
+        )}
+        {/* No Tooltip preview for folders */}
+        {file.isFolder && (
+          <>
+            {/* Icon */}
+            <FileFolderLogo isFolder={file.isFolder} />
+
+            {/* Name */}
+            <span>
+              {searchText?.length === 0 && truncateBaseName(file.name, 20)}
+              {searchText?.length !== 0 && highlightText(file.name, searchText)}
+            </span>
+          </>
+        )}
 
         {/* Icons only visible on hover */}
         <div
