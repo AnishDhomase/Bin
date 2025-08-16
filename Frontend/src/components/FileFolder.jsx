@@ -24,6 +24,7 @@ const FileFolder = ({
   file,
   setDirectory,
   handleFileStar,
+  handleFileTrash,
   // toggleStar,
   // toggleTrash,
   searchText = "",
@@ -84,9 +85,15 @@ const FileFolder = ({
 
   async function handleStarToggle(e, fileFolder) {
     console.log(fileFolder);
-    e.stopPropagation();
-    toggleStar(fileFolder);
-    handleFileStar(fileFolder);
+    e.preventDefault();
+    const success = await toggleStar(fileFolder);
+    if (success) handleFileStar(fileFolder);
+  }
+  async function handleTrashToggle(e, fileFolder) {
+    console.log(fileFolder);
+    e.preventDefault();
+    const success = await toggleTrash(fileFolder);
+    if (success) handleFileTrash(fileFolder);
   }
 
   return (
@@ -142,10 +149,7 @@ const FileFolder = ({
                 color: "#d43b3b",
               },
             }}
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleTrash(file);
-            }}
+            onClick={(e) => handleTrashToggle(e, file)}
           >
             <i className="ri-delete-bin-line text-gold text-[18px] font-light"></i>
           </IconButton>
