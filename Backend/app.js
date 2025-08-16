@@ -24,7 +24,10 @@ setInterval(
 
 // Middlewares
 // app.use(cors()); // Cross-Origin Resource Sharing
-const allowedOrigin = "http://localhost:5173";
+const allowedOrigin = [
+  "http://localhost:5173",
+  "https://project-bin.netlify.app",
+];
 app.use(
   cors({
     origin: allowedOrigin,
