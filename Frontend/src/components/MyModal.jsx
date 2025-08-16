@@ -31,7 +31,12 @@ const style = {
   justifyContent: "center",
 };
 
-export default function MyModal({ children, btn, width = 450 }) {
+export default function MyModal({
+  children,
+  btn,
+  width = 450,
+  noPadding = false,
+}) {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -97,7 +102,14 @@ export default function MyModal({ children, btn, width = 450 }) {
           },
         }}
       >
-        <Box sx={{ ...style, outline: 0, width: width }}>
+        <Box
+          sx={{
+            ...style,
+            outline: 0,
+            width: width,
+            padding: noPadding ? 0 : 6,
+          }}
+        >
           {childrenWithClose}
         </Box>
       </Modal>

@@ -31,6 +31,7 @@ const FileFolder = ({
   searchText = "",
   setSearchText,
   isForFavTrashPage = false,
+  setFileOpen,
 }) => {
   const { toggleStar, toggleTrash } = useContext(FilesFoldersDataContext);
 
@@ -73,6 +74,9 @@ const FileFolder = ({
         setSearchText("");
         if (!isForFavTrashPage)
           setDirectory((directory) => [...directory, file]);
+      } else {
+        setFileOpen(file);
+        console.log(file);
       }
     }
 
