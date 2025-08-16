@@ -256,7 +256,7 @@ const DashboardMain = () => {
       </header>
 
       {/* Main */}
-      <main className="w-5/6 mx-auto bg-gray-800 py-10 rounded-xl">
+      <main className="w-5/6 mx-auto bg-gray-800 py-10 rounded-xl min-h-[450px]">
         <div className="flex flex-col">
           {/* Search bar + Upload File + Create Folder */}
           <section className="flex justify-between items-center gap-2 w-3/4 mx-auto">
@@ -379,9 +379,10 @@ const DashboardMain = () => {
           )}
 
           {/* Title: Name, Last Modified, Size */}
-          {(files.length !== 0 || searchedForFiles.length !== 0) && (
-            <div className="flex flex-col gap-2 w-3/4 bg-gray-800 mx-auto mt-4 -mb-2">
-              <li className="group flex items-center text-white gap-2 bg-gray-900 justify-between py-2 px-1 pl-3 rounded-lg">
+          {((searchText.length === 0 && files.length !== 0) ||
+            searchedForFiles.length !== 0) && (
+            <div className="flex flex-col gap-2 w-3/4 bg-gray-800 mx-auto mt-6 -mb-2">
+              <li className="group flex items-center text-white gap-2 bg-gray-900 justify-between py-1 px-1 pl-3 rounded-lg">
                 <span className="relative flex items-center text-white w-[400px] gap-2 text-[13px]">
                   Name
                 </span>
