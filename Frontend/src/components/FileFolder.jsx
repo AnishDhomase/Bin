@@ -1,8 +1,11 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
-import React, { useRef } from "react";
+import React, { useContext, useRef } from "react";
 import IconButton from "@mui/material/IconButton";
 import { truncateBaseName } from "../utils/truncateName";
 import { formatFileSize } from "./FileUpload";
+import FilesFoldersContext, {
+  FilesFoldersDataContext,
+} from "../contexts/FilesFoldersContext";
 export const FileFolderLogo = ({ isFolder, height = 30 }) => {
   return (
     <span className="min-w-[50px] flex justify-center">
@@ -20,12 +23,15 @@ export const FileFolderLogo = ({ isFolder, height = 30 }) => {
 const FileFolder = ({
   file,
   setDirectory,
-  toggleStar,
-  toggleTrash,
+  handleFileStar,
+  // toggleStar,
+  // toggleTrash,
   searchText = "",
   setSearchText,
   isForFavTrashPage = false,
 }) => {
+  const { toggleStar, toggleTrash } = useContext(FilesFoldersDataContext);
+
   const { setNodeRef: setDropRef } = useDroppable({
     id: file._id,
   });
@@ -76,6 +82,13 @@ const FileFolder = ({
     setDragRef(node);
   };
 
+  async function handleStarToggle(e, fileFolder) {
+    console.log(fileFolder);
+    e.stopPropagation();
+    toggleStar(fileFolder);
+    handleFileStar(fileFolder);
+  }
+
   return (
     <li
       ref={combinedRef}
@@ -109,10 +122,7 @@ const FileFolder = ({
                 color: "#FFD700",
               },
             }}
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleStar(file);
-            }}
+            onClick={(e) => handleStarToggle(e, file)}
           >
             {!file.isStarred ? (
               <i className="ri-star-line text-gold text-[18px] font-thin"></i>

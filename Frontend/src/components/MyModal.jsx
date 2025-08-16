@@ -22,7 +22,6 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: 450,
   bgcolor: "#353742",
-  border: "2px solid #000",
   borderRadius: "16px",
   boxShadow: 24,
   p: 6,
@@ -92,7 +91,7 @@ export default function MyModal({ children, btn, width = 450 }) {
         slotProps={{
           backdrop: {
             sx: {
-              backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent dark
+              backgroundColor: "rgba(6, 7, 22, 0.762)", // semi-transparent dark
               backdropFilter: "blur(16px)", // blur effect
             },
           },

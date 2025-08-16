@@ -1,4 +1,9 @@
 import { createContext, useState } from "react";
+import { delay } from "../utils/delay";
+import { useToast } from "./ToastContext";
+import axios from "axios";
+import ToastAuthenticated from "../components/Toast/ToastAuthenticated";
+import ToastError from "../components/Toast/ToastError";
 
 // const filesData = [
 //   {
@@ -114,15 +119,51 @@ export const FilesFoldersDataContext = createContext();
 
 const FilesFoldersContext = ({ children }) => {
   // const [allDBFiles, setAllDBFiles] = useState(filesData);
+  const toast = useToast();
 
-  function toggleStar(fileFolder) {
-    // setAllDBFiles((allDBFiles) =>
-    //   allDBFiles.map((item) =>
-    //     item.id !== fileFolder.id
-    //       ? item
-    //       : { ...item, isStarred: !item.isStarred }
-    //   )
-    // );
+  async function toggleStar(fileFolder) {
+    console.log(fileFolder);
+    try {
+      // setLoading(true);
+      // await delay(1000); // Wait for 1 second
+      const fileFolderId = fileFolder._id;
+      const response = await axios.patch(
+        `${import.meta.env.VITE_BASE_URL}/asset/${fileFolderId}/star`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      console.log(response.data);
+      if (response.data.success === true) {
+        const { isStarred, isFolder } = response.data.data;
+        toast.open(
+          <ToastAuthenticated
+            headline={`${isFolder ? "Folder" : "File"} ${
+              isStarred ? "Starred" : "Unstarred"
+            }`}
+            subHeadline={`We've ${isStarred ? "Starred" : "Unstarred"} ${
+              isFolder ? "Folder" : "File"
+            }`}
+          />
+        );
+      } else {
+        console.log("Error");
+      }
+    } catch (error) {
+      console.log(error.response.data);
+
+      const errSubHeadlineMsg = error.response.data.message;
+      const errHeadlineMsg = "Something went wrong";
+      toast.open(
+        <ToastError headline={errHeadlineMsg} subHeadline={errSubHeadlineMsg} />
+      );
+    } finally {
+      // setLoading(false);
+    }
   }
 
   function toggleTrash(fileFolder) {

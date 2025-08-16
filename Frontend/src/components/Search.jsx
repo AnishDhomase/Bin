@@ -57,29 +57,29 @@ export default function Search({
     );
   }, [files, searchText, setSearchedForFiles, filter]);
 
-  const handleFilterChange = (e) => {
-    const { name, checked } = e.target;
-    if (name === "includeFiles" && checked === false) {
-      if (filter.includeFolders === false)
-        setFilter((prev) => ({ ...prev, ["includeFolders"]: true }));
-    } else if (name === "includeFolders" && checked === false) {
-      if (filter.includeFiles === false)
-        setFilter((prev) => ({ ...prev, ["includeFiles"]: true }));
-    } else if (name === "includeImages" && checked === false) {
-      if (filter.includeDocuments === false)
-        setFilter((prev) => ({ ...prev, ["includeDocuments"]: true }));
-    } else {
-      if (filter.includeImages === false)
-        setFilter((prev) => ({ ...prev, ["includeImages"]: true }));
-    }
-    setFilter((prev) => ({ ...prev, [name]: checked }));
-  };
+  // const handleFilterChange = (e) => {
+  //   const { name, checked } = e.target;
+  //   if (name === "includeFiles" && checked === false) {
+  //     if (filter.includeFolders === false)
+  //       setFilter((prev) => ({ ...prev, ["includeFolders"]: true }));
+  //   } else if (name === "includeFolders" && checked === false) {
+  //     if (filter.includeFiles === false)
+  //       setFilter((prev) => ({ ...prev, ["includeFiles"]: true }));
+  //   } else if (name === "includeImages" && checked === false) {
+  //     if (filter.includeDocuments === false)
+  //       setFilter((prev) => ({ ...prev, ["includeDocuments"]: true }));
+  //   } else {
+  //     if (filter.includeImages === false)
+  //       setFilter((prev) => ({ ...prev, ["includeImages"]: true }));
+  //   }
+  //   setFilter((prev) => ({ ...prev, [name]: checked }));
+  // };
   return (
     <div>
       <Paper
         component="form"
         sx={{
-          p: "2px 4px",
+          // p: "2px 4px",
           display: "flex",
           alignItems: "center",
           width: "100%",
@@ -93,11 +93,11 @@ export default function Search({
           autoFocus
           value={searchText}
           onChange={handleChange}
-          sx={{ ml: 1, flex: 1, fontSize: "18px", color: "white" }}
+          sx={{ ml: 1, flex: 1, fontSize: "16px", color: "white" }}
           placeholder="Search here"
           inputProps={{ "aria-label": "search here" }}
         />
-        <MyModal
+        {/* <MyModal
           btn={
             <IconButton
               type="button"
@@ -193,7 +193,7 @@ export default function Search({
               </div>
             </FormGroup>
           </div>
-        </MyModal>
+        </MyModal> */}
       </Paper>
     </div>
   );

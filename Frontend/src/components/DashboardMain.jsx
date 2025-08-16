@@ -214,6 +214,15 @@ const DashboardMain = () => {
       setLoading(false);
     }
   }
+  async function handleFileStar(fileFolderToToggle) {
+    setFiles((files) =>
+      files.map((item) =>
+        item._id !== fileFolderToToggle._id
+          ? item
+          : { ...item, isStarred: !item.isStarred }
+      )
+    );
+  }
 
   return (
     <main className="p-8">
@@ -245,7 +254,7 @@ const DashboardMain = () => {
       <main className="w-5/6 mx-auto bg-gray-800 py-10 rounded-xl">
         <div className="flex flex-col">
           {/* Search bar + Upload File + Create Folder */}
-          <section className="flex justify-between content-center gap-2 w-3/4 mx-auto items-center">
+          <section className="flex justify-between items-center gap-2 w-3/4 mx-auto">
             <Search
               files={files}
               setSearchedForFiles={setSearchedForFiles}
@@ -254,7 +263,7 @@ const DashboardMain = () => {
             />
 
             {/* Upload file and Add folder Modals */}
-            <span className="flex gap-1.5">
+            <span className="flex gap-1.5 items-center">
               {/* Upload files Modal */}
               <MyModal
                 btn={
@@ -262,7 +271,7 @@ const DashboardMain = () => {
                     variant="outlined"
                     startIcon={
                       <CloudUploadOutlinedIcon
-                        sx={{ fontSize: "35px !important" }}
+                        sx={{ fontSize: "25px !important" }}
                         color="inherit"
                       />
                     }
@@ -272,9 +281,8 @@ const DashboardMain = () => {
                       justifyContent: "start",
                       fontSize: "16px",
                       color: "white",
-                      padding: "8px 15px",
+                      padding: "5px 10px",
                       border: "2px solid #ffffff1a",
-                      height: "100%",
                     }}
                   >
                     Upload
@@ -315,7 +323,7 @@ const DashboardMain = () => {
                     variant="outlined"
                     startIcon={
                       <AddIcon
-                        sx={{ fontSize: "35px !important" }}
+                        sx={{ fontSize: "25px !important" }}
                         color="inherit"
                       />
                     }
@@ -325,9 +333,8 @@ const DashboardMain = () => {
                       justifyContent: "start",
                       fontSize: "16px",
                       color: "white",
-                      padding: "10px 20px",
+                      padding: "5px 10px",
                       border: "2px solid #ffffff1a",
-                      height: "100%",
                     }}
                   >
                     Create
@@ -348,7 +355,7 @@ const DashboardMain = () => {
           </section>
 
           {/* Breadcrumb */}
-          <header className="text-white text-2xl font-semibold w-3/4 mx-auto mt-10">
+          <header className="text-white text-xl font-semibold w-3/4 mx-auto mt-10">
             <div
               className="bg-gray-900 px-4 py-1 rounded-md flex gap-1 text-gray-400 overflow-x-auto whitespace-nowrap custom-scrollbar items-center"
               onWheel={(e) => {
@@ -391,8 +398,9 @@ const DashboardMain = () => {
                     key={file._id}
                     file={file}
                     setDirectory={setDirectory}
-                    toggleStar={toggleStar}
-                    toggleTrash={toggleTrash}
+                    handleFileStar={handleFileStar}
+                    // toggleStar={handleToggleStar}
+                    // toggleTrash={toggleTrash}
                     searchText={searchText}
                     setSearchText={setSearchText}
                   />
@@ -403,7 +411,7 @@ const DashboardMain = () => {
 
           {/* If no searchText and no files/folders in current directory*/}
           {!loading && searchText.length === 0 && files.length === 0 && (
-            <h1 className="w-3/4 bg-gray-800 mx-auto mt-4 font-semibold text-xl text-[#4294FF]">
+            <h1 className="w-3/4 p-4 rounded-xl bg-[#0000006b] mx-auto mt-4 font-semibold text-md text-[#4294FF] text-center">
               Folder is empty. Add{" "}
               <span className="text-white ml-1">"Files"</span> or{" "}
               <span className="text-white ml-1">"Folders"</span> here to get
@@ -419,8 +427,9 @@ const DashboardMain = () => {
                   key={file.id}
                   file={file}
                   setDirectory={setDirectory}
-                  toggleStar={toggleStar}
-                  toggleTrash={toggleTrash}
+                  handleFileStar={handleFileStar}
+                  // toggleStar={handleToggleStar}
+                  // toggleTrash={toggleTrash}
                   searchText={searchText}
                   setSearchText={setSearchText}
                 />
@@ -430,7 +439,7 @@ const DashboardMain = () => {
 
           {/* If searchText present but no results found */}
           {searchText.length !== 0 && searchedForFiles.length === 0 && (
-            <h1 className="w-3/4 bg-gray-800 mx-auto mt-4 font-semibold text-xl text-[#4294FF]">
+            <h1 className="w-3/4 p-4 rounded-xl bg-[#0000006b]  mx-auto mt-4 font-semibold text-md text-[#4294FF] text-center">
               Ooops! We couldn’t find anything for
               <span className="text-white ml-1">"{searchText}"</span> in
               <span className="text-white ml-1">
