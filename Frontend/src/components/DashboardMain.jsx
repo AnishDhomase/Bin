@@ -49,7 +49,6 @@ const DashboardMain = () => {
   const [searchText, setSearchText] = useState("");
   const [searchedForFiles, setSearchedForFiles] = useState([]);
   const toast = useToast();
-  const [viewerOpen, setViewerOpen] = useState(false);
   const [fileOpen, setFileOpen] = useState(null);
   const [overId, setOverId] = useState(null);
   const [dragActive, setDragActive] = useState(false);
