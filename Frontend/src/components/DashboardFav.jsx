@@ -70,12 +70,6 @@ const DashboardFav = () => {
     );
   }
 
-  // async function handleFileTrash(fileFolderToTrash) {
-  //   setFiles((files) =>
-  //     files.filter((item) => item._id !== fileFolderToTrash._id)
-  //   );
-  // }
-
   return (
     <main className="p-8">
       {/* Back button and Page title */}

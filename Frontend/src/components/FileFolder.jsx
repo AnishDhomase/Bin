@@ -32,6 +32,8 @@ const FileFolder = ({
   setSearchText,
   isForFavTrashPage = false,
   setFileOpen,
+  isOver,
+  isDragActive,
 }) => {
   const { toggleStar, toggleTrash } = useContext(FilesFoldersDataContext);
 
@@ -51,6 +53,13 @@ const FileFolder = ({
   const style = transform
     ? {
         transform: `translate(${transform.x}px, ${transform.y}px)`,
+        zIndex: 9999,
+        backgroundColor: "rgba(0, 255, 55, 0.066)", // translucent green
+        backdropFilter: "blur(8px)", // frosted effect
+        WebkitBackdropFilter: "blur(8px)", // Safari support
+        border: "1px solid rgba(255, 255, 255, 0.2)", // subtle border
+        borderRadius: "12px",
+        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)", // depth
       }
     : undefined;
 
@@ -66,7 +75,7 @@ const FileFolder = ({
     const dx = Math.abs(e.clientX - startPoint.current.x);
     const dy = Math.abs(e.clientY - startPoint.current.y);
 
-    const dragThreshold = 5; // px movement threshold
+    const dragThreshold = 2; // px movement threshold
 
     if (dx < dragThreshold && dy < dragThreshold) {
       // Considered as a click
@@ -109,12 +118,14 @@ const FileFolder = ({
       {...listeners}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
-      className="group flex items-center text-white gap-2 bg-[#03081f6e] justify-between py-2 px-1 rounded-xl cursor-pointer hover:bg-[#1018289a]" //active:bg-[#66ff7011]
+      className={`${
+        isOver ? "border-1 border-[#ffffff]" : ""
+      }  select-none group flex items-center text-white gap-2 bg-[#03081f6e] justify-between py-2 px-1 rounded-xl cursor-pointer hover:bg-[#1018289a]`} //active:bg-[#66ff7011]
     >
       {/* Icon and Name */}
       <span className="relative flex items-center text-white w-[400px] gap-2 text-[13px] font-semibold">
         {/* Tooltip preview for files */}
-        {!file.isFolder && (
+        {!file.isFolder && !isDragActive ? (
           <>
             {/* Icon */}
             <Tooltip
@@ -186,10 +197,9 @@ const FileFolder = ({
               </span>
             </Tooltip>
           </>
-        )}
-        {/* No Tooltip preview for folders */}
-        {file.isFolder && (
+        ) : (
           <>
+            {/* No Tooltip preview for folders */}
             {/* Icon */}
             <FileFolderLogo isFolder={file.isFolder} />
 

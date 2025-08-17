@@ -51,7 +51,10 @@ const DashboardMain = () => {
   const toast = useToast();
   const [viewerOpen, setViewerOpen] = useState(false);
   const [fileOpen, setFileOpen] = useState(null);
+  const [overId, setOverId] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
   const isPDFFileOpen = fileOpen?.cloudinaryAssetId?.format === "pdf";
+
   // When directory changes make searchText empty
   useEffect(() => {
     setSearchText("");
@@ -111,48 +114,74 @@ const DashboardMain = () => {
     // allDBFiles
   ]);
 
-  function handleDragEnd(event) {
-    const { active, over } = event;
-    console.log({ active, over });
+  // Drag and Drop
+  async function handleDragEnd(event) {
+    try {
+      setOverId(null);
+      setDragActive(null);
+      setLoading(true);
+      // await delay(1000); // Wait for 1 second
 
-    if (!over) return;
+      const { active, over } = event;
+      console.log({ active, over });
+      if (!over) return;
 
-    const draggingfileFolderId = active.id;
-    const droppingFolderId = over.id;
-    if (draggingfileFolderId === droppingFolderId) return;
+      const draggingfileFolderId = active.id;
+      const droppingFolderId = over.id;
+      if (draggingfileFolderId === droppingFolderId) return;
 
-    // Check for droppingFolder folder/file already contains draggingfileFolder
-    // const draggingItem = allDBFiles.find(
-    //   (item) => item.id === draggingfileFolderId
-    // );
-    // const itemsInDroppingFolder = allDBFiles.filter(
-    //   (item) =>
-    //     item.parentId === droppingFolderId &&
-    //     item.isFolder === draggingItem.isFolder
-    // );
-    // const isItemAlreadyExistInDroppingFolder = itemsInDroppingFolder.some(
-    //   (item) => item.name === draggingItem.name
-    // );
-    // if (isItemAlreadyExistInDroppingFolder)
-    //   return alert(
-    //     `Can't move "${draggingItem.name}" ${
-    //       draggingItem.isFolder ? "Folder" : "File"
-    //     } because such file already exist in it.`
-    //   );
+      const droppingItem = files.filter(
+        (item) => item._id === droppingFolderId
+      );
+      console.log(droppingItem);
+      if (!droppingItem[0].isFolder) {
+        return;
+      }
 
-    // Update parent of draggingfileFolder in db
-    // setAllDBFiles((files) =>
-    //   files.map((file) =>
-    //     file.id === draggingfileFolderId
-    //       ? {
-    //           ...file,
-    //           parentId: droppingFolderId,
-    //         }
-    //       : file
-    //   )
-    // );
+      // Request backend
+      const response = await axios.patch(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/asset/${draggingfileFolderId}/relocate`,
+        {
+          newParentId: droppingFolderId,
+        },
+        {
+          withCredentials: true, // send cookies / auth headers
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      console.log(response.data);
+      if (response.data.success === true) {
+        toast.open(
+          <ToastAuthenticated
+            headline="Moved successfully"
+            subHeadline="We've moved it successfully"
+          />
+        );
+        // Update files
+        setFiles((files) =>
+          files.filter((item) => item._id !== draggingfileFolderId)
+        );
+      } else {
+        console.log("Error");
+      }
+    } catch (error) {
+      console.log(error.response.data);
+      const errSubHeadlineMsg = error.response.data.message;
+      const errHeadlineMsg = "Error moving in";
+      toast.open(
+        <ToastError headline={errHeadlineMsg} subHeadline={errSubHeadlineMsg} />
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
+  // New Folder Addition
   async function handleNewFolderAddition(newFolderData) {
     // setAllDBFiles((allDBFiles) => [...allDBFiles, newFolder]);
     try {
@@ -194,7 +223,7 @@ const DashboardMain = () => {
       setLoading(false);
     }
   }
-
+  // New File Addition
   async function handleNewFileUpload(newFileData) {
     try {
       setLoading(true);
@@ -233,6 +262,7 @@ const DashboardMain = () => {
       setLoading(false);
     }
   }
+  // FileFolder Star
   async function handleFileStar(fileFolderToToggle) {
     setFiles((files) =>
       files.map((item) =>
@@ -242,6 +272,7 @@ const DashboardMain = () => {
       )
     );
   }
+  // FileFolder Trash
   async function handleFileTrash(fileFolderToTrash) {
     setFiles((files) =>
       files.filter((item) => item._id !== fileFolderToTrash._id)
@@ -417,7 +448,13 @@ const DashboardMain = () => {
           {/* If no searchText allow drag and drop */}
           {searchText.length === 0 && (
             <ul className="flex flex-col gap-2 w-3/4 bg-gray-800 mx-auto mt-4">
-              <DndContext onDragEnd={handleDragEnd}>
+              <DndContext
+                onDragEnd={handleDragEnd}
+                onDragOver={({ over }) => setOverId(over?.id || null)}
+                onDragStart={({ active }) =>
+                  setDragActive(active ? true : false)
+                }
+              >
                 {files.map((file) => (
                   <FileFolder
                     key={file._id}
@@ -428,6 +465,8 @@ const DashboardMain = () => {
                     setFileOpen={setFileOpen}
                     searchText={searchText}
                     setSearchText={setSearchText}
+                    isOver={overId === file._id}
+                    isDragActive={dragActive}
                   />
                 ))}
               </DndContext>
