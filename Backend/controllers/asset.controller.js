@@ -4,6 +4,7 @@ import CloudinaryAssetModel from "../models/cloudinaryAsset.model.js";
 import FileFolderModel from "../models/fileFolder.model.js";
 import { cloudinary } from "../configs/cloudinary.js";
 import mongoose from "mongoose";
+import { getFileAnalysis } from "../services/asset.service.js";
 
 const fileUpload = async (req, res) => {
   const session = await mongoose.startSession();
@@ -24,6 +25,16 @@ const fileUpload = async (req, res) => {
     const { parentId } = req.body;
     const { originalname: fileName, mimetype, size } = req.file;
     const userId = req.user._id;
+
+    const analytics = await getFileAnalysis(userId);
+    if (analytics.free.size < size) {
+      await session.abortTransaction();
+      return res.status(404).json({
+        success: false,
+        message: "Not enough free space to upload file",
+        errorCode: "FREE_SPACE",
+      });
+    }
 
     // If parentId is provided, check it exists or not
     let parentFolder = null;
@@ -609,6 +620,30 @@ export const getRecentFiles = async (req, res, next) => {
   }
 };
 
+export const getFileAnalytics = async (req, res, next) => {
+  try {
+    // Destructure request
+    const userId = req.user.id;
+
+    const analytics = await getFileAnalysis(userId);
+
+    const storageLimit = parseInt(process.env.USER_STORAGE_LIMIT, 10);
+
+    res.json({
+      success: true,
+      message: "Fetched file analytics successfully",
+      data: { analytics, storageLimit },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch file analytics",
+      errorCode: "FETCH_FAILED",
+      error: error.message,
+    });
+  }
+};
+
 export default {
   fileUpload,
   folderCreate,
@@ -620,4 +655,5 @@ export default {
   getFavFilesFolders,
   getTrashFilesFolders,
   getRecentFiles,
+  getFileAnalytics,
 };

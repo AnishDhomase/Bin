@@ -161,4 +161,13 @@ router.get(
   assetController.getRecentFiles
 );
 
+// get file analytics
+router.get(
+  "/analytics",
+  // rateLimiter(MINUTE, 30),
+  authenticateUser,
+  emailVerifiedUser,
+  assetController.getFileAnalytics
+);
+
 export default router;
