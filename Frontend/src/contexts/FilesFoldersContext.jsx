@@ -118,7 +118,6 @@ import ToastError from "../components/Toast/ToastError";
 export const FilesFoldersDataContext = createContext();
 
 const FilesFoldersContext = ({ children }) => {
-  // const [allDBFiles, setAllDBFiles] = useState(filesData);
   const toast = useToast();
 
   async function toggleStar(fileFolder) {
@@ -217,13 +216,6 @@ const FilesFoldersContext = ({ children }) => {
     }
   }
 
-  // function toggleTrash(fileFolder) {
-  //   // setAllDBFiles((allDBFiles) =>
-  //   //   allDBFiles.map((item) =>
-  //   //     item.id !== fileFolder.id ? item : { ...item, isTrash: !item.isTrash }
-  //   //   )
-  //   // );
-  // }
   return (
     <FilesFoldersDataContext.Provider
       value={{

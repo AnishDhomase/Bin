@@ -1,5 +1,5 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
-import React, { useContext, useRef } from "react";
+import React, { useContext, useRef, useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import { truncateBaseName } from "../utils/truncateName";
 import { formatFileSize } from "./FileUpload";
@@ -120,7 +120,7 @@ const FileFolder = ({
       onMouseUp={handleMouseUp}
       className={`${
         isOver ? "border-1 border-[#ffffff]" : ""
-      }  select-none group flex items-center text-white gap-2 bg-[#03081f6e] justify-between py-2 px-1 rounded-xl cursor-pointer hover:bg-[#1018289a]`} //active:bg-[#66ff7011]
+      } relative select-none group flex items-center text-white gap-2 bg-[#03081f6e] justify-between py-2 px-1 rounded-xl cursor-pointer hover:bg-[#1018289a]`} //active:bg-[#66ff7011]
     >
       {/* Icon and Name */}
       <span className="relative flex items-center text-white w-[400px] gap-2 text-[13px] font-semibold">

@@ -4,7 +4,7 @@ import { useUser } from "../contexts/UserContext";
 
 const DashboardBanner = () => {
   const { user } = useUser();
-  if (user.isEmailVerified) return null;
+  if (user?.isEmailVerified) return null;
   return (
     <div className="text-gray-700 sticky top-0 bg-[#87bafe] py-4 px-26 text-[18px] z-1000 flex items-center gap-4">
       Verify your email to unlock full functionality

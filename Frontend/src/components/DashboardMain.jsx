@@ -9,7 +9,7 @@ import { DndContext } from "@dnd-kit/core";
 import MyModal from "./MyModal";
 import FolderSearch from "./FolderSearch";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
-import FileUpload from "./FileUpload";
+import FileUpload, { formatFileSize } from "./FileUpload";
 import { FilesFoldersDataContext } from "../contexts/FilesFoldersContext";
 import { Box, IconButton, Modal } from "@mui/material";
 import { getBreadcrumbPath } from "../utils/breadcrumbPath";
@@ -18,7 +18,9 @@ import { delay } from "../utils/delay";
 import axios from "axios";
 import ToastError from "./Toast/ToastError";
 import ToastAuthenticated from "./Toast/ToastAuthenticated";
-import FileViewer from "./FileViewer";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Doughnut } from "react-chartjs-2";
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const style = {
   position: "absolute",
@@ -35,6 +37,18 @@ const style = {
   flexDirection: "column",
   justifyContent: "center",
 };
+
+function getSizePrecentage(byteSize, totalSize) {
+  return Math.round((byteSize * 100) / totalSize);
+}
+
+const storageData = [
+  { name: "Image", key: "image", color: "#4285F4", size: 0, items: 0 },
+  { name: "Document", key: "document", color: "#FBBC05", size: 0, items: 0 },
+  // { name: "Other", key: "other", color: "#34A853", size: 0 , items: 0},
+  { name: "Trash", key: "trash", color: "#DB4437", size: 0, items: 0 },
+  { name: "Free", key: "free", color: "#b7b9bc", size: 0, items: 0 },
+];
 
 const DashboardMain = () => {
   const {
@@ -53,6 +67,45 @@ const DashboardMain = () => {
   const [overId, setOverId] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const isPDFFileOpen = fileOpen?.cloudinaryAssetId?.format === "pdf";
+  const [storageAnalytics, setStorageAnalytics] = useState([]);
+  const [storageLimit, setStorageLimit] = useState(0);
+  const isStorageOccupied = storageLimit !== storageAnalytics[4]?.size;
+
+  console.log(storageAnalytics);
+
+  // Chart
+  const data = {
+    labels: storageData.map((data) => data.name),
+    datasets: [
+      {
+        data: storageAnalytics.map((data) =>
+          data?.size ? getSizePrecentage(data.size, storageLimit) : 0
+        ),
+        backgroundColor: storageData.map((data) => data.color),
+        borderColor: storageData.map((data) => data.color),
+        borderWidth: 1,
+      },
+    ],
+  };
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    aspectRatio: 1,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        enabled: true,
+        callbacks: {
+          label: (ctx) => `${ctx.parsed}%`,
+        },
+      },
+    },
+    cutout: "50%",
+    radius: "100%",
+    rotation: -0.5 * Math.PI,
+  };
 
   // When directory changes make searchText empty
   useEffect(() => {
@@ -112,6 +165,57 @@ const DashboardMain = () => {
     // toast,
     // allDBFiles
   ]);
+
+  // Storage Analytics
+  const fetchStorageAnalytics = useCallback(
+    async () => {
+      setLoading(true);
+      try {
+        // await new Promise((resolve) => setTimeout(resolve, 200));
+        await delay(200);
+
+        const response = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/asset/analytics`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        if (response.data.success === true) {
+          const fetchedData = response.data.data.analytics;
+          const updatedData = storageData.map((item) => ({
+            ...item,
+            size: fetchedData[item.key].size,
+            items: fetchedData[item.key].items,
+          }));
+          setStorageAnalytics(updatedData);
+          setStorageLimit(parseInt(response.data.data.storageLimit));
+        } else {
+          console.log("");
+        }
+      } catch (error) {
+        console.log(error.response.data);
+
+        const errSubHeadlineMsg = error.response.data.message;
+        const errHeadlineMsg = "Unable to fetch Analytics";
+        toast.open(
+          <ToastError
+            headline={errHeadlineMsg}
+            subHeadline={errSubHeadlineMsg}
+          />
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      // files
+    ]
+  );
+  useEffect(() => {
+    fetchStorageAnalytics();
+  }, [files]);
 
   // Drag and Drop
   async function handleDragEnd(event) {
@@ -296,13 +400,56 @@ const DashboardMain = () => {
       </header>
 
       {/* Storage analytics */}
-      <header className=" w-5/6 mx-auto mb-5">
-        <main className="h-[250px] bg-gray-900 rounded-xl p-5">
-          <h1 className="text-white text-xl">
-            Storage overview will be implemented here soon ...
-          </h1>
-        </main>
-      </header>
+      {isStorageOccupied && (
+        <header className=" w-5/6 mx-auto mb-5">
+          <main className="h-[300px] bg-gray-900 rounded-xl py-8 px-15 flex justify-center gap-5">
+            <div className="w-2/4 max-w-[400px] m-auto">
+              <ul className="flex flex-col gap-3">
+                {storageAnalytics.map((data) => (
+                  <li>
+                    <div className="flex justify-between items-center">
+                      <div className="flex gap-2 items-center text-white  text-[14px] font-semibold">
+                        <div
+                          className={`h-[10px] w-[10px] rounded-full`}
+                          style={{
+                            backgroundColor: data.color,
+                          }}
+                        ></div>{" "}
+                        {data.name}
+                      </div>
+                      <div className="h-[3px] min-w-[100px]">
+                        <div className="bg-gray-500 h-[5px] rounded-2xl flex justify-end">
+                          <div
+                            className={`h-full rounded-2xl`}
+                            style={{
+                              backgroundColor: data.color,
+                              width: `${getSizePrecentage(
+                                data.size,
+                                storageLimit
+                              )}%`,
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center text-[13px] text-gray-400">
+                      <div className="flex gap-2 items-center">
+                        <div className="h-[10px] w-[10px] rounded-full bg-transparent"></div>{" "}
+                        {data.name === "Free" ? "" : `${data.items} Items`}
+                      </div>
+                      <div className="">{formatFileSize(data.size)}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* Chart */}
+            <div className="relative h-full w-2/4">
+              <Doughnut data={data} options={options} />
+            </div>
+          </main>
+        </header>
+      )}
 
       {/* Main */}
       <main className="w-5/6 mx-auto bg-gray-800 py-10 rounded-xl min-h-[450px]">
@@ -513,6 +660,7 @@ const DashboardMain = () => {
         </div>
       </main>
 
+      {/* File preview modal */}
       <Modal
         open={fileOpen !== null}
         onClose={() => setFileOpen(null)}

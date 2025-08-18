@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { Alert, CircularProgress, Snackbar } from "@mui/material";
@@ -7,6 +7,9 @@ const FileUpload = ({ directory, handleNewFileUpload, closeModal }) => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
+
+  const [freeSpace, setFreeSpace] = useState(0);
+  const [storageLimit, setStorageLimit] = useState(0);
 
   // DropZone file selection
   const onDrop = (acceptedFiles) => {
@@ -50,6 +53,8 @@ const FileUpload = ({ directory, handleNewFileUpload, closeModal }) => {
     maxSize: 2 * 1024 * 1024, // 2MB
   });
 
+  console.log(freeSpace, file?.size);
+
   // file upload
   async function handleUpload() {
     setLoading(true);
@@ -62,6 +67,19 @@ const FileUpload = ({ directory, handleNewFileUpload, closeModal }) => {
           subHeadline="Select file to upload"
         />
       );
+      setLoading(false);
+      return;
+    }
+
+    if (freeSpace < file.size) {
+      toast.open(
+        <ToastError
+          headline="Can't upload the file"
+          subHeadline="There isn't enough space"
+        />
+      );
+      setLoading(false);
+
       return;
     }
 
@@ -73,6 +91,52 @@ const FileUpload = ({ directory, handleNewFileUpload, closeModal }) => {
     setLoading(false);
     closeModal();
   }
+
+  // Storage Analytics
+  const fetchStorageAnalytics = useCallback(
+    async () => {
+      setLoading(true);
+      try {
+        // await new Promise((resolve) => setTimeout(resolve, 200));
+        await delay(200);
+
+        const response = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/asset/analytics`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        if (response.data.success === true) {
+          const fetchedData = response.data.data.analytics;
+          setFreeSpace(fetchedData.free.size);
+          setStorageLimit(parseInt(response.data.data.storageLimit));
+        } else {
+          console.log("");
+        }
+      } catch (error) {
+        console.log(error.response.data);
+
+        const errSubHeadlineMsg = error.response.data.message;
+        const errHeadlineMsg = "Unable to fetch Analytics";
+        toast.open(
+          <ToastError
+            headline={errHeadlineMsg}
+            subHeadline={errSubHeadlineMsg}
+          />
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      // files
+    ]
+  );
+  useEffect(() => {
+    fetchStorageAnalytics();
+  }, []);
 
   return (
     <>
